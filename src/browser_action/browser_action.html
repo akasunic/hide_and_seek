@@ -1,0 +1,56 @@
+<!doctype html>
+<head>
+	<script type="text/javascript" src="browser_action.js"></script>
+</head>
+<style type="text/css">
+	#mainPopup {
+		padding: 10px;
+		height: 200px;
+		width: 400px;
+		font-family: Helvetica, Ubuntu, Arial, sans-serif;
+	}
+	h1 {
+		font-size: 2em;
+	}
+</style>
+
+<div id="welcome">
+	<button>Start New Game</button>
+	<button>Enter Invite Code</button>
+	<a href="">Link to more info about game, maybe YouTube</a>
+</div>
+
+<div id="startNewGame">
+	<label>Your Name</label>
+	<input type="text" placeholder="Your Name">
+	<label>Game Time (in minutes, maybe</label>
+	<input type ="text">
+	<label>Sample GIF input (or upload?)</label>
+	<input type="text" placeholder="The GIF people will see">
+	<button>Create Game</button>
+</div>
+
+<div id="joinGame">
+	<label>Your Name</label>
+	<input type="text">
+	<label>Your GIF</label>
+	<input type="text" placeholder="placeholder for GIPHY">
+	<button>Join Game</button>
+</div>
+
+<div id = "gameInProgress>">
+	<p id="gameCode">Game Code (only shows for gamemaster</p>
+	<p>Hi, NAME. You are currently playing hide-and-seek. Time remaining: -----</p>
+	<div id="noPlayer">
+		No one is here. Keep 
+	</div>
+
+	<div id = "foundPlayer">
+		<p>gif will show up here...</p>
+	</div>
+	<div id = "gameStats">
+		
+	</div>
+
+</div>
+

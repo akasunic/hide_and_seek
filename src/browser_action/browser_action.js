@@ -1,0 +1,1 @@
+document.querySelector(#mainPopup).style.color = "red";
