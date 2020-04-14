@@ -6,8 +6,23 @@
 
 
 //example of using a message handler from the inject scripts
-chrome.extension.onMessage.addListener(
-  function(request, sender, sendResponse) {
-  	chrome.pageAction.show(sender.tab.id);
-    sendResponse();
-  });
+// chrome.extension.onMessage.addListener(
+//   function(request, sender, sendResponse) {
+//   	chrome.pageAction.show(sender.tab.id);
+//     sendResponse();
+//   });
+
+console.log('running background script');
+
+chrome.runtime.onMessage.addListener(
+    function(message) {
+      if (message == 'showgif'){
+      	console.log('running listener script')
+        chrome.tabs.executeScript({
+          file: 'showGIF.js'
+        });
+        // chrome.tabs.executeScript({
+        //   file: 'src/showGIF.js'
+        // });
+      }
+   });
