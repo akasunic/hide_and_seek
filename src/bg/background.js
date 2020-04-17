@@ -12,6 +12,9 @@
 //     sendResponse();
 //   });
 
+
+// NOTE!!!! INSTEAD OF SENDING MESSAGE-- might decide to constantly check from background script. But that will put a lot of extra load on the game... 
+// Maybe for now, keep it how it is
 console.log('running background script');
 
 chrome.runtime.onMessage.addListener(
