@@ -1,8 +1,37 @@
+//SAMPLE FILE SHOULD BE IDENTICAL BUT SHOULDNT INCLUDE SECRET KEY
 console.log('script in main folder running');
 var sampleGIF = document.createElement("img");
-sampleGIF.src = "https://www.google.com/imgres?imgurl=https%3A%2F%2Fimage.shutterstock.com%2Fimage-vector%2Fsample-stamp-grunge-texture-vector-260nw-1389188336.jpg&imgrefurl=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fsample&tbnid=Y_YW6-EhP5GqrM&vet=12ahUKEwi3x-u6v-joAhVuRDABHee5CMIQMygAegUIARDuAQ..i&docid=uebZI0kak767YM&w=520&h=280&q=sample%20image&ved=2ahUKEwi3x-u6v-joAhVuRDABHee5CMIQMygAegUIARDuAQ";
+sampleGIF.src = "https://media.giphy.com/media/eh7nOwlu16eq7mXd0b/source.gif";
 sampleGIF.id = "sampleGIF";
 sampleGIF.style.position = "fixed";
-sampleGIF.style.top = 0;
-sampleGIF.style.left = 0;
+sampleGIF.style.top = "0px";
+sampleGIF.style.left = "0px";
+
+
+
 document.querySelector('body').appendChild(sampleGIF);
+
+
+
+
+sampleGIF.onload= function(){
+
+
+	var height = sampleGIF.height;
+	var width = sampleGIF.width;
+
+
+// Will execute myCallback every 0.5 seconds 
+	var intervalID = window.setInterval(myCallback, 1000);
+
+function myCallback() {
+	// console.log('callback');
+ 	sampleGIF.style.left = (Math.floor(Math.random()*(window.innerWidth-width))).toString() + "px";
+ 	sampleGIF.style.top = (Math.floor(Math.random()*(window.innerHeight-height))).toString() + "px";
+//  	console.log("width = ", width, ". height = ", height);
+//  	console.log("width is ", sampleGIF.style.left);
+//  	console.log("height is ", sampleGIF.style.top);
+}
+};
+
+
