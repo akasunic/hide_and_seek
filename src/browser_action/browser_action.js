@@ -1,7 +1,17 @@
 console.log('browser action script is running');
 // document.querySelector('body').style.color = "red";
-chrome.runtime.sendMessage("showgif");
+// chrome.runtime.sendMessage("showgif");
 var gameCode;
+window.onload = function(){
+	var welcome = document.querySelector('#welcome');
+var startNewGame = document.querySelector('#startNewGame');
+var joinGame = document.querySelector('#joinGame');
+var gameInProgress = document.querySelector('#gameInProgress');
+var startButton = document.querySelector('#start');
+var joinButton = document.querySelector('#join');
+
+
+
 
 chrome.storage.sync.get('gameCode', function(items) {
 	if(gameCode && gameCode!=''){
@@ -23,19 +33,19 @@ chrome.storage.sync.get('gameCode', function(items) {
 });
 
 function makeWelcomeScreen(){
-	document.querySelector('#welcome').style.display = "block";
-	document.querySelector('#startNewGame').style.display = "none";
-	document.querySelector('#joinGame').style.display = "none";
-	document.querySelector('#gameInProgress').style.display = "none";
-	document.querySelector('#start').addEventListener('click', function(){makeCreateScreen()});
-	document.querySelector('#join').addEventListener('click', function(){makeJoinScreen()});
+	welcome.style.display = "block";
+	startNewGame.style.display = "none";
+	joinGame.style.display = "none";
+	gameInProgress.style.display = "none";
+	startButton.addEventListener('click', function(){makeCreateScreen()});
+	joinButton.addEventListener('click', function(){makeJoinScreen()});
 	
 }
 
+//REORGANIZE THESE FUNCTIONS SO IT'S EASIER TO FIND STUFF!!!
 // thanks to https://www.sitepoint.com/create-one-time-events-javascript/
 // create a one-time event
 function onetime(node, type, callback) {
-
 	// create event
 	node.addEventListener(type, function(e) {
 		// remove event
@@ -53,28 +63,20 @@ function makeCreateScreen(){
 	//should also have a "go back" button that takes back to the welcome screen
 	//will need to validate input on front end and backend
 
-	document.querySelector('#welcome').style.display = "none";
-	document.querySelector('#startNewGame').style.display = "block";
-	document.querySelector('#joinGame').style.display = "none";
-	document.querySelector('#gameInProgress').style.display = "none";
+	welcome.style.display = "none";
+	startNewGame.style.display = "block";
+	joinGame.style.display = "none";
+	gameInProgress.style.display = "none";
 	document.querySelector('#search').addEventListener('click', function(){implement_search_gif()});
-	// document.querySelector('#create').addEventListener('click', function(){createGame()});
-
 	onetime(document.querySelector("#create"), "click", createGame);
-
-// // handler function
-// function handler(e) {
-// 	alert("You'll only see this once!");
-// }
-
 
 }
 
 function makeJoinScreen(){
-	document.querySelector('#welcome').style.display = "none";
-	document.querySelector('#startNewGame').style.display = "none";
-	document.querySelector('#joinGame').style.display = "block";
-	document.querySelector('#gameInProgress').style.display = "none";
+	welcome.style.display = "none";
+	startNewGame.style.display = "none";
+	joinGame.style.display = "block";
+	gameInProgress.style.display = "none";
 
 }
 
@@ -89,13 +91,74 @@ function generateUID() {
     return firstPart + secondPart;
 }
 
+//for both regexp/url checkers, i just looked on stack overflow
+function isURL(url_string){
+	regexp =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
+    return regexp.test(url_string);
+}
+
+
+function isGIF(gif_string){
+	regexp = /\.(jpg|png|gif)$/;
+	if (isURL(gif_string)){
+		return regexp.test(gif_string);
+	}
+	return false;
+}
+
+function validateGameCreation(name, duration, site, gif){
+	if (name == '' || typeof name != 'string'){ //name should be a non-empty string. Maybe also check if name already in game but let's do that leter
+		document.querySelector('#name').setAttribute('class', 'invalid');
+		return "You must enter a name.";
+	}
+
+	else if (isNaN(duration) || duration<1 || duration>1440){ //duration should be a number-- decide if doing minutes or hours or what
+		//change parameters if you want later, and change form since obviously can't do just in minutes-- currently must be at least a minute and no more than 24 hours
+		//COULD EVEN DO A DROPDOWN YEAH THAT"S A GOOD IDEA
+		document.querySelector('#duration').setAttribute('class', 'invalid');
+  		return "Please enter a valid number for duration.";
+	}
+
+	else if (isURL(site) == false){//site should be a real site
+		document.querySelector('#site').setAttribute('class', 'invalid');
+		return "You must enter a valid website as your hiding place.";
+	}
+
+	else if (isGIF(gif)==false){//gif should be a displayable gif, not sure how to test
+		return "You did not select a valid GIF.";
+		// if want to be more specifc, could change tostarts with https://media.tenor.com/
+		// and ends in tenor.gif
+		//but currently using a generic gif/png/img checker
+		//thanks to https://stackoverflow.com/questions/169625/regex-to-check-if-valid-url-that-ends-in-jpg-png-or-gif
+	}
+
+	else{
+
+		return true;
+	}
+}
+
 function createGame(){
+	//first remove any existing invalid flags
+	var invalids = document.querySelectorAll(".invalid");
+	[].forEach.call(invalids, function(el) {
+	    el.classList.remove("hover");
+	});
+
 	var name, duration, site, gif, code;
 	name = document.querySelector('#name').value;
 	duration = document.querySelector('#duration').value;
 	site = document.querySelector('#site').value;
-	gif = document.querySelector('#selected_gif').src;
+	try{
+		gif = document.querySelector('#selected_gif').src;
+	}
+	catch{
+		gif = 'no selection';
+	}
 	code = generateUID();
+
+	if (validateGameCreation(name, duration, site, gif)==true){ //go ahead and create game
+		console.log('creating game');
 
 	db.collection("games").doc(code).set({
 		duration: duration,
@@ -110,6 +173,17 @@ function createGame(){
 				gif: gif
 			});
 	});
+
+	//should move to the next screen and show the code
+	}
+	else{
+
+		console.log(validateGameCreation(name, duration, site, gif));
+		console.log('couldnt create');
+		//need to be able to create again
+		onetime(document.querySelector("#create"), "click", createGame);
+		//give some message about not being able to create game
+	}
 }
 
 // chrome.storage.sync.set({
@@ -229,3 +303,4 @@ db.settings({
 
 // var storageRef = firebase.storage().ref();
 
+} //ends window on load...
