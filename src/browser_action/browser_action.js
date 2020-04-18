@@ -30,7 +30,20 @@ function makeWelcomeScreen(){
 	document.querySelector('#start').addEventListener('click', function(){makeCreateScreen()});
 	document.querySelector('#join').addEventListener('click', function(){makeJoinScreen()});
 	
-	
+}
+
+// thanks to https://www.sitepoint.com/create-one-time-events-javascript/
+// create a one-time event
+function onetime(node, type, callback) {
+
+	// create event
+	node.addEventListener(type, function(e) {
+		// remove event
+		e.target.removeEventListener(e.type, arguments.callee);
+		// call handler
+		return callback(e);
+	});
+
 }
 
 function makeCreateScreen(){
@@ -45,8 +58,14 @@ function makeCreateScreen(){
 	document.querySelector('#joinGame').style.display = "none";
 	document.querySelector('#gameInProgress').style.display = "none";
 	document.querySelector('#search').addEventListener('click', function(){implement_search_gif()});
+	// document.querySelector('#create').addEventListener('click', function(){createGame()});
 
+	onetime(document.querySelector("#create"), "click", createGame);
 
+// // handler function
+// function handler(e) {
+// 	alert("You'll only see this once!");
+// }
 
 
 }
@@ -57,6 +76,40 @@ function makeJoinScreen(){
 	document.querySelector('#joinGame').style.display = "block";
 	document.querySelector('#gameInProgress').style.display = "none";
 
+}
+
+//stole from: https://stackoverflow.com/questions/6248666/how-to-generate-short-uid-like-ax4j9z-in-js
+function generateUID() {
+    // I generate the UID from two parts here 
+    // to ensure the random number provide enough bits.
+    var firstPart = (Math.random() * 46656) | 0;
+    var secondPart = (Math.random() * 46656) | 0;
+    firstPart = ("000" + firstPart.toString(36)).slice(-3);
+    secondPart = ("000" + secondPart.toString(36)).slice(-3);
+    return firstPart + secondPart;
+}
+
+function createGame(){
+	var name, duration, site, gif, code;
+	name = document.querySelector('#name').value;
+	duration = document.querySelector('#duration').value;
+	site = document.querySelector('#site').value;
+	gif = document.querySelector('#selected_gif').src;
+	code = generateUID();
+
+	db.collection("games").doc(code).set({
+		duration: duration,
+		code: code,
+		time_created: Date.now()
+	})
+	.then(function(){
+		db.collection("games").doc(code)
+			.collection("players").add({
+				name: name,
+				hidingPlace: site,
+				gif: gif
+			});
+	});
 }
 
 // chrome.storage.sync.set({
@@ -108,27 +161,13 @@ function tenorCallback_search(responsetext)
     	img.addEventListener('click', function(){
     		searchResults.querySelector('p').innerHTML="You've selected this GIF";
     		this.removeAttribute('class', 'unselected');
-    		// console.log(searchResults.querySelectorAll('.unselected'));
-
+    		this.id = "selected_gif";
     		Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
     			image.style.display = 'none';
     		});
-    		this.removeEventListener("click");
-    			
-    
-
-    		// document.querySelector('#search_results').innerHTML = '';
-    		// document.querySelector('#search_results').appendChild(img);
     	});
     }
-
-
-    // document.getElementById("preview_gif").src = top_gifs[0]["media"][0]["nanogif"]["url"];
-
-    // document.getElementById("share_gif").src = top_gifs[0]["media"][0]["tinygif"]["url"];
-
     return;
-
 }
 
 
@@ -136,7 +175,6 @@ function tenorCallback_search(responsetext)
 function implement_search_gif()
 {
     // set the apikey and limit
-    //make a sample file also, but do when totally done
     var apikey = "BKY4AB64N333";
     var lmt = 10;
 
@@ -146,20 +184,12 @@ function implement_search_gif()
     // using default locale of en_US
     var search_url = "https://api.tenor.com/v1/search?q=" + search_term + "&key=" +
             apikey + "&limit=" + lmt;
-     console.log(search_url);
 
     httpGetAsync(search_url,tenorCallback_search);
 
     // data will be loaded by each call's callback
     return;
 }
-
-
-// SUPPORT FUNCTIONS ABOVE
-// MAIN BELOW
-
-// start the flow
-
 
 
 //CODE TO CONNECT TO FIRESTORE
@@ -199,22 +229,3 @@ db.settings({
 
 // var storageRef = firebase.storage().ref();
 
-db.collection("games")
-	.get()
-	.then(function(querySnapshot){
-		// chrome.storage.sync.get('userid', function(items) {
-		//     userid = items.userid;
-		// 	link = "http://www.youtube.com/watch_videos?video_ids=WUrJmUmRf_c";
-		// 	querySnapshot.forEach(function(doc){
-		// 		if(doc.data()['user']!=userid && doc.data()['ad_id'][0]!='{'){
-		// 			link += "," + doc.data()['ad_id'];
-		// 		}
-				
-		// 	});
-		// 	sendResponse({userid: userid, link:link});	
-			
-		// });
-		querySnapshot.forEach(function(doc){
-			console.log(doc.data());
-			});
-	});
