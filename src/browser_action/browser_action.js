@@ -1,7 +1,9 @@
+//clearing storage for testing purposes, remove this line later
+// chrome.storage.sync.clear();
 console.log('browser action script is running');
 // document.querySelector('body').style.color = "red";
 // chrome.runtime.sendMessage("showgif");
-var gameCode;
+var gameCode, yourName, yourSite;
 window.onload = function(){
 	var welcome = document.querySelector('#welcome');
 var startNewGame = document.querySelector('#startNewGame');
@@ -10,11 +12,16 @@ var gameInProgress = document.querySelector('#gameInProgress');
 var startButton = document.querySelector('#start');
 var joinButton = document.querySelector('#join');
 
-
-
-
-chrome.storage.sync.get('gameCode', function(items) {
-	if(gameCode && gameCode!=''){
+chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
+	gameCode = items.gameCode;
+	console.log(gameCode);
+	if(gameCode!='' && gameCode !=undefined){
+		//eh, just going to assume for now that name and site were properly added
+		//maybe later do error handling but like, eh
+		yourName = items.name;
+		console.log(yourName);
+		yourSite = items.site;
+		makePlayScreen();
 		//game in progress, so have the flow here
 		//show the right screen (separate functions)
 		//load the game info
@@ -42,7 +49,7 @@ function makeWelcomeScreen(){
 	
 }
 
-//REORGANIZE THESE FUNCTIONS SO IT'S EASIER TO FIND STUFF!!!
+//REORGANIZE THESE FUNCTIONS LATER SO IT'S EASIER TO FIND STUFF!!!
 // thanks to https://www.sitepoint.com/create-one-time-events-javascript/
 // create a one-time event
 function onetime(node, type, callback) {
@@ -77,6 +84,22 @@ function makeJoinScreen(){
 	startNewGame.style.display = "none";
 	joinGame.style.display = "block";
 	gameInProgress.style.display = "none";
+
+}
+
+function makePlayScreen(){
+	welcome.style.display = "none";
+	startNewGame.style.display = "none";
+	joinGame.style.display = "none";
+	gameInProgress.style.display = "block";
+	console.log(yourName);
+	document.querySelector('#gameCode').innerHTML = gameCode;
+	document.querySelector('#yourName').innerHTML = yourName;
+	document.querySelector('#hidingPlace').href = yourSite;
+	//STILL ADD SITE
+	//WILLNEED A FUNCTION TO UPDATE TIME -- this will need to use setInterval
+	//WILLNEED A FUNCTION TO TEST IF THERE's a player here-- shouldn't need to re-run (though, could)
+	//Will need a function to update stats-- again, I would just do this when browser action is activated
 
 }
 
@@ -175,6 +198,21 @@ function createGame(){
 				hidingPlace: site,
 				gif: gif
 			});
+			console.log(name);
+	})
+	.then(function(){ //I think this is right? waiting until it was successfully added to db before I then move onto the next screen
+		//okay, now update chrome storage
+		gameCode = code;
+		yourName = name;
+		console.log(yourName);
+		yourSite = site;
+		//will need to set other things besides game code!! But just do for now
+		chrome.storage.sync.set({
+			gameCode: gameCode, 
+			name: yourName,
+			site: yourSite
+		});
+		makePlayScreen();
 	});
 
 	//should move to the next screen and show the code
@@ -190,10 +228,6 @@ function createGame(){
 	}
 }
 
-// chrome.storage.sync.set({
-//                 userid: userid,
-//                 email: email
-//             });
 //SAMPLE CODE TAKEN FROM TENOR DOCUMENTATION
 // url Async requesting function
 function httpGetAsync(theUrl, callback)
