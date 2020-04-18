@@ -2,41 +2,33 @@
 <head>
 	<script type="text/javascript" src="browser_action.js"></script>
 </head>
-<style type="text/css">
-	#mainPopup {
-		padding: 10px;
-		height: 200px;
-		width: 400px;
-		font-family: Helvetica, Ubuntu, Arial, sans-serif;
-	}
-	h1 {
-		font-size: 2em;
-	}
-</style>
 
 <!-- FOLLOWING JUST TO TEST FOR NOW!!! -->
-<h2># 1 GIF loaded - preview image</h2>
+<!-- <h2># 1 GIF loaded - preview image</h2>
 <img id="preview_gif" src="" alt="" style="width:220px;height:164px;">
 <h2># 1 GIF loaded - share image</h2>
-<img id="share_gif" src="" alt="" style="width:498px;height:372px;">
-
-
+<img id="share_gif" src="" alt="" style="width:498px;height:372px;"> -->
+<!-- DELETE CODE ABOVE LATER, WILL SAVE FOR NOW -->
 
 <div id="welcome">
-	<button>Start New Game</button>
-	<button>Enter Invite Code</button>
+	<button id="start">Start New Game</button>
+	<button id="join">Enter Invite Code</button>
 	<a href="">Link to more info about game, maybe YouTube</a>
 </div>
 
 <div id="startNewGame">
 	<label>Your Name</label>
 	<input type="text" placeholder="Your Name">
-	<label>Game Time (in minutes, maybe</label>
+	<label>How long (in minutes) do you want this game to last?</label>
 	<input type ="text">
-	<label>Sample image upload. Or photo of face?? </label>
-	<input type="file" name="myimages">
-	<label>Sample GIF input (or upload?)</label>
-	<input type="text" placeholder="The GIF people will see">
+	<label>The website where you'll be hiding:</label>
+	<input type ="text">
+	<label>Search for a GIF that other players will see when they find you</label>
+	<input id="gif_search" type="text">
+	<button id="search">Search</button>
+	<div id="search_results">
+
+	</div>
 	<button>Create Game</button>
 </div>
 
@@ -48,7 +40,7 @@
 	<button>Join Game</button>
 </div>
 
-<div id = "gameInProgress>">
+<div id = "gameInProgress">
 	<p id="gameCode">Game Code (only shows for gamemaster</p>
 	<p>Hi, NAME. You are currently playing hide-and-seek. Time remaining: -----</p>
 	<div id="noPlayer">
