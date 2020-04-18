@@ -139,10 +139,12 @@ function validateGameCreation(name, duration, site, gif){
 }
 
 function createGame(){
-	//first remove any existing invalid flags
+	//first remove any existing invalid flags and messages
+	document.querySelector('#startError').innerHTML = '';
 	var invalids = document.querySelectorAll(".invalid");
+	
 	[].forEach.call(invalids, function(el) {
-	    el.classList.remove("hover");
+	    el.classList.remove("invalid");
 	});
 
 	var name, duration, site, gif, code;
@@ -157,7 +159,8 @@ function createGame(){
 	}
 	code = generateUID();
 
-	if (validateGameCreation(name, duration, site, gif)==true){ //go ahead and create game
+	var validateGame = validateGameCreation(name, duration, site, gif);
+	if (validateGame==true){ //go ahead and create game
 		console.log('creating game');
 
 	db.collection("games").doc(code).set({
@@ -177,8 +180,9 @@ function createGame(){
 	//should move to the next screen and show the code
 	}
 	else{
+		document.querySelector('#startError').innerHTML = validateGame;
 
-		console.log(validateGameCreation(name, duration, site, gif));
+		// console.log(validateGameCreation(name, duration, site, gif));
 		console.log('couldnt create');
 		//need to be able to create again
 		onetime(document.querySelector("#create"), "click", createGame);

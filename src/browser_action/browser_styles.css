@@ -1,3 +1,8 @@
+/*placeholder styles...will be working on actual formatting later!!*/
 .invalid{
 	box-shadow: 0 0 3px #CC0000;
+}
+
+.error{
+	color:#CC0000;
 }
