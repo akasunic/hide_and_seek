@@ -17,35 +17,30 @@
 	<a href="">Link to more info about game, maybe YouTube</a>
 </div>
 
-<div id="startNewGame">
+<div id="startOrJoin">
 	<!-- <form> -->
-		<div id="startError" class="error"></div>
+		<div id="newGameError" class="error"></div>
+		<label class="joinOnly">Game Code</label>
+		<input class="joinOnly" id="joinCode" type="text">
+		<label class="startOnly">How long (in minutes) do you want this game to last?</label>
+		<input class="startOnly" type ="text" id="duration">
 		<label>Your Name</label>
-		<input required type="text" placeholder="Your Name" id="name">
-		<label>How long (in minutes) do you want this game to last?</label>
-		<input required type ="text" id="duration">
+		<input type="text" placeholder="Your Name" id="name">
+		
 		<label>The website where you'll be hiding:</label>
-		<input required type ="text" id="site">
+		<input type ="text" id="site">
 		<label>Search for a GIF that other players will see when they find you</label>
 		<input id="gif_search" type="text">
 		<button id="search">Search</button>
 		<div id="search_results">
-
 		</div>
-		<button id="create">Create Game</button>
+		<button class="joinOnly" id="joinButton">Join Game</button>
+		<button class="startOnly" id="create">Create Game</button>
 	<!-- </form> -->
 </div>
 
-<div id="joinGame">
-	<label>Your Name</label>
-	<input type="text">
-	<label>Your GIF</label>
-	<input type="text" placeholder="placeholder for GIPHY">
-	<button>Join Game</button>
-</div>
-
 <div id = "gameInProgress">
-	<p>Game Code to Share with Friends: <span id="gameCode"></span></p>
+	<p>Game Code: <span id="gameCode"></span></p>
 	<p>Hi, <span id="yourName"></span>. You are currently playing hide-and-seek. In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends! Time remaining: <span id="time"></span></p>
 	<div id="noPlayer">
 		No one is here. Keep 
