@@ -6,3 +6,10 @@
 .error{
 	color:#CC0000;
 }
+
+
+.found-player-gif{
+	position: fixed;
+	top: 0px;
+	left: 0px;
+}

@@ -21,6 +21,7 @@ chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
 		yourName = items.name;
 		console.log(yourName);
 		yourSite = items.site;
+		console.log(yourSite);
 		makePlayScreen();
 		//game in progress, so have the flow here
 		//show the right screen (separate functions)
@@ -96,11 +97,59 @@ function makePlayScreen(){
 	document.querySelector('#gameCode').innerHTML = gameCode;
 	document.querySelector('#yourName').innerHTML = yourName;
 	document.querySelector('#hidingPlace').href = yourSite;
-	//STILL ADD SITE
-	//WILLNEED A FUNCTION TO UPDATE TIME -- this will need to use setInterval
+	searchForPlayers();	
+
+	//WILLNEED A FUNCTION TO UPDATE TIME -- this will need to use setInterva-- I really don't want to do this, so will do this later!!!
 	//WILLNEED A FUNCTION TO TEST IF THERE's a player here-- shouldn't need to re-run (though, could)
 	//Will need a function to update stats-- again, I would just do this when browser action is activated
 
+}
+
+function compareURLS(url1, url2){
+	var prefix = /^https?:\/\/www./;
+	var ending = /\/$/;
+    url1 = url1.replace(prefix, '');
+    url2 = url2.replace(prefix, '');
+    url1 = url1.replace(ending, '');
+    url2 = url2.replace(ending, '');
+    console.log(url2, url1);
+	if (url1 == url2){
+		console.log('urls match');
+		return true;
+	} 
+	return false;
+}
+
+
+function updateStats(){
+	//will want to run this if just found a player on your page. but won't bother for other players
+}
+
+function searchForPlayers(){
+	var thisUrl;
+	//get current tab url, and see if there are any players in db that are hiding there.
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+     // since only one tab should be active and in the current window at once
+     // the return variable should only have one entry
+     	thisUrl = tabs[0].url;
+     	console.log(thisUrl);
+ 	});
+	db.collection("games").doc(gameCode)
+		.collection("players").get()
+		.then(function(results){
+			results.forEach(function(doc){
+				var data = doc.data();
+				var site = data['hidingPlace'].toLowerCase();
+				var gif = data['gif'];
+				if (compareURLS(thisUrl, site)){
+					//show the GIF associated with that player
+					chrome.runtime.sendMessage({task: "showgif", link: gif});
+					//update message to show you found the player
+					//update db to show that player found by another player (if not already marked)
+					updateStats();
+				}
+			});
+		});
 }
 
 //stole from: https://stackoverflow.com/questions/6248666/how-to-generate-short-uid-like-ax4j9z-in-js
@@ -206,6 +255,9 @@ function createGame(){
 		yourName = name;
 		console.log(yourName);
 		yourSite = site;
+		if (yourSite.substring(0, 4) != "http"){
+			yourSite = "http://" + site;
+		}
 		//will need to set other things besides game code!! But just do for now
 		chrome.storage.sync.set({
 			gameCode: gameCode, 
