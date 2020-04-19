@@ -106,13 +106,14 @@ function makePlayScreen(){
 }
 
 function compareURLS(url1, url2){
-	var prefix = /^https?:\/\/www./;
+	console.log(url1, "<current tab", url2);
+	var prefix = /^https?:\/\/(www.)?/;
 	var ending = /\/$/;
     url1 = url1.replace(prefix, '');
     url2 = url2.replace(prefix, '');
     url1 = url1.replace(ending, '');
     url2 = url2.replace(ending, '');
-    console.log(url2, url1);
+    console.log(url1, url2);
 	if (url1 == url2){
 		console.log('urls match');
 		return true;
@@ -319,7 +320,7 @@ function tenorCallback_search(responsetext)
     // load the GIFs --
     for (var i=0; i<top_gifs.length; i++){
     	var img = document.createElement('img');
-    	img.src = top_gifs[i]["media"][0]["nanogif"]["url"];
+    	img.src = top_gifs[i]["media"][0]["tinygif"]["url"];
     	img.setAttribute('class', 'unselected');
     	searchResults.appendChild(img);
     	img.addEventListener('click', function(){
