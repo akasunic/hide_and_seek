@@ -1,5 +1,7 @@
 //clearing storage for testing purposes, remove this line later
-chrome.storage.sync.clear();
+// chrome.storage.sync.clear();
+// chrome.storage.sync.set({'gameCode':"ijpiyo"});
+
 console.log('browser action script is running');
 // document.querySelector('body').style.color = "red";
 // chrome.runtime.sendMessage("showgif");
@@ -152,7 +154,8 @@ function searchForPlayers(){
 		.collection("players").get()
 		.then(function(results){
 			results.forEach(function(doc){
-				console.log(yourName);
+				// console.log(yourName);
+				console.log(doc.data());
 				var data = doc.data();
 				var site = data['hidingPlace'].toLowerCase();
 				var gif = data['gif'];
@@ -164,8 +167,8 @@ function searchForPlayers(){
 					var playerFound = data['name'];
 					db.collection("games").doc(gameCode)
 					.collection("players").doc(playerFound).set({
-						foundBy: firebase.firestore.FieldValue.arrayUnion(yourName)
-					});
+						foundBy: firebase.firestore.FieldValue.arrayUnion(yourName), 
+					}, {merge: true});
 					
 					updateStats();
 				}
@@ -277,7 +280,7 @@ function newGame(joinOrCreate){
 		console.log('creating game');
 		if (joinOrCreate == "create"){
 			code = generateUID(); //for new game
-			db.collection("games").doc(code).set({
+			db.collection("games").doc(code).create({
 			duration: duration,
 			code: code,
 			time_created: Date.now()
@@ -285,7 +288,7 @@ function newGame(joinOrCreate){
 		})
 		.then(function(){
 			db.collection("games").doc(code)
-				.collection("players").doc(name).set({
+				.collection("players").doc(name).create({
 					name: name,
 					hidingPlace: site,
 					gif: gif,
@@ -303,7 +306,7 @@ function newGame(joinOrCreate){
 				yourSite = "http://" + site;
 			}
 			//will need to set other things besides game code!! But just do for now
-			chrome.storage.sync.set({
+			chrome.storage.sync.create({
 				gameCode: gameCode, 
 				name: yourName,
 				site: yourSite
