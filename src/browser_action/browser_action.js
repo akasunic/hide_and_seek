@@ -1,5 +1,5 @@
 //clearing storage for testing purposes, remove this line later
-// chrome.storage.sync.clear();
+chrome.storage.sync.clear();
 console.log('browser action script is running');
 // document.querySelector('body').style.color = "red";
 // chrome.runtime.sendMessage("showgif");
@@ -21,6 +21,7 @@ chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
 		console.log(yourName);
 		yourSite = items.site;
 		console.log(yourSite);
+		console.log('play screen');
 		makePlayScreen();
 		//game in progress, so have the flow here
 		//show the right screen (separate functions)
@@ -138,6 +139,7 @@ function updateStats(){
 }
 
 function searchForPlayers(){
+	// var playerFound;
 	var thisUrl;
 	//get current tab url, and see if there are any players in db that are hiding there.
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -150,6 +152,7 @@ function searchForPlayers(){
 		.collection("players").get()
 		.then(function(results){
 			results.forEach(function(doc){
+				console.log(yourName);
 				var data = doc.data();
 				var site = data['hidingPlace'].toLowerCase();
 				var gif = data['gif'];
@@ -158,6 +161,12 @@ function searchForPlayers(){
 					chrome.runtime.sendMessage({task: "showgif", link: gif});
 					//update message to show you found the player
 					//update db to show that player found by another player (if not already marked)
+					var playerFound = data['name'];
+					db.collection("games").doc(gameCode)
+					.collection("players").doc(playerFound).set({
+						foundBy: firebase.firestore.FieldValue.arrayUnion(yourName)
+					});
+					
 					updateStats();
 				}
 			});
@@ -272,13 +281,15 @@ function newGame(joinOrCreate){
 			duration: duration,
 			code: code,
 			time_created: Date.now()
+			
 		})
 		.then(function(){
 			db.collection("games").doc(code)
-				.collection("players").add({
+				.collection("players").doc(name).set({
 					name: name,
 					hidingPlace: site,
-					gif: gif
+					gif: gif,
+					foundBy: []
 				});
 				console.log(name);
 		})
@@ -305,10 +316,11 @@ function newGame(joinOrCreate){
 		else if (joinOrCreate == "join"){
 			console.log("joincode is: ", joinCode);
 			db.collection("games").doc(joinCode)
-			.collection("players").add({
+			.collection("players").doc(name).set({
 				name:name,
 				hidingPlace: site,
-				gif: gif
+				gif: gif, 
+				foundBy: []
 			})
 			.then(function(){
 				gameCode = joinCode;
@@ -317,6 +329,7 @@ function newGame(joinOrCreate){
 				if (yourSite.substring(0, 4) != "http"){
 					yourSite = "http://" + site;
 				}
+				console.log('about to set storage');	
 				//will need to set other things besides game code!! But just do for now
 				chrome.storage.sync.set({
 					gameCode: gameCode, 
