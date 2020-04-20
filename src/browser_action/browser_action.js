@@ -16,7 +16,11 @@ var joinButton = document.querySelector('#join');
 chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
 	gameCode = items.gameCode;
 	console.log(gameCode);
-	if(gameCode!='' && gameCode !=undefined){
+	if(gameCode !=undefined){
+		db.collection("games").doc(gameCode).get()
+		.then(function(results){
+			if(results.exists){
+			
 		//eh, just going to assume for now that name and site were properly added
 		//maybe later do error handling but like, eh
 		yourName = items.name;
@@ -29,7 +33,16 @@ chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
 		//show the right screen (separate functions)
 		//load the game info
 		//will want to get the current tab and then act accordingly, e.g. update the stats, show GIF if relevant, etc.
+}	
+else{
+	//if you have a game code stored, but it doesn't exist in the database
+	chrome.storage.sync.clear();
+	alert("Sorry, the game you were playing no longer exists. Someone ended it.");
+	//maybe need an elongated goodbye???
+	makeWelcomeScreen();
 
+}
+});
 	}
 	else{ //set up a new game
 		makeWelcomeScreen();
@@ -103,6 +116,27 @@ function makeNewGameScreen(createOrJoin){
 
 // }
 
+function endGame(){
+	//note that the players subcollection will still exist
+	var confirmResults = confirm("This will end the game for ALL players!!");
+	if(confirmResults == true){
+		db.collection("games").doc(gameCode).delete();
+		chrome.storage.sync.clear();
+		//some sort of fanfare... maybe an elongated goodbye
+		makeWelcomeScreen();
+	}
+}
+
+function leaveGame(){
+	//delete this player from the game
+	db.collection("games").doc(gameCode)
+		.collection("players").doc(yourName).delete();
+	chrome.storage.sync.clear();
+	alert("Sorry to see you go,", yourName, "! You can always rejoin...");
+	makeWelcomeScreen();
+
+}
+
 function makePlayScreen(){
 	welcome.style.display = "none";
 	document.querySelector('#startOrJoin').style.display = "none";
@@ -111,7 +145,10 @@ function makePlayScreen(){
 	document.querySelector('#gameCode').innerHTML = gameCode;
 	document.querySelector('#yourName').innerHTML = yourName;
 	document.querySelector('#hidingPlace').href = yourSite;
+	document.querySelector('#leaveGame').addEventListener('click', leaveGame);
+	document.querySelector('#quitGame').addEventListener('click', endGame);
 	searchForPlayers();	
+
 
 	//WILLNEED A FUNCTION TO UPDATE TIME -- this will need to use setInterva-- I really don't want to do this, so will do this later!!!
 	//WILLNEED A FUNCTION TO TEST IF THERE's a player here-- shouldn't need to re-run (though, could)
