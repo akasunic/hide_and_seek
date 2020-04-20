@@ -19,6 +19,8 @@ chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
 	if(gameCode !=undefined){
 		db.collection("games").doc(gameCode).get()
 		.then(function(results){
+			console.log(results);
+			console.log(results.data());
 			if(results.exists){
 			
 		//eh, just going to assume for now that name and site were properly added
@@ -33,18 +35,18 @@ chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
 		//show the right screen (separate functions)
 		//load the game info
 		//will want to get the current tab and then act accordingly, e.g. update the stats, show GIF if relevant, etc.
-}	
-else{
-	//if you have a game code stored, but it doesn't exist in the database
-	chrome.storage.sync.clear();
-	alert("Sorry, the game you were playing no longer exists. Someone ended it.");
-	//maybe need an elongated goodbye???
-	makeWelcomeScreen();
+		}	
+			else{
+				//if you have a game code stored, but it doesn't exist in the database
+				chrome.storage.sync.clear();
+				alert("Sorry, the game you were playing no longer exists. Someone ended it.");
+				//maybe need an elongated goodbye???
+				makeWelcomeScreen();
 
-}
-});
+			}
+		});
 	}
-	else{ //set up a new game
+	else{ //set up a new game if gameCode is undefined
 		makeWelcomeScreen();
 	}
 });
@@ -108,16 +110,9 @@ function makeNewGameScreen(createOrJoin){
 
 }
 
-// function makeJoinScreen(){
-// 	welcome.style.display = "none";
-// 	startOrJoin.style.display = "none";
-
-// 	gameInProgress.style.display = "none";
-
-// }
 
 function endGame(){
-	//note that the players subcollection will still exist
+	//note that the players subcollection will still exist--can just periodically clean out the database manually
 	var confirmResults = confirm("This will end the game for ALL players!!");
 	if(confirmResults == true){
 		db.collection("games").doc(gameCode).delete();
@@ -148,11 +143,10 @@ function makePlayScreen(){
 	document.querySelector('#leaveGame').addEventListener('click', leaveGame);
 	document.querySelector('#quitGame').addEventListener('click', endGame);
 	searchForPlayers();	
+	updateStats();
 
 
-	//WILLNEED A FUNCTION TO UPDATE TIME -- this will need to use setInterva-- I really don't want to do this, so will do this later!!!
-	//WILLNEED A FUNCTION TO TEST IF THERE's a player here-- shouldn't need to re-run (though, could)
-	//Will need a function to update stats-- again, I would just do this when browser action is activated
+	//Will need a function to update stats-- again, I would just do this when browser action is activated-- hm, but could do an interval. will first do just one time
 
 }
 
@@ -174,7 +168,56 @@ function compareURLS(url1, url2){
 
 
 function updateStats(){
+	console.log('running updateStats');
+	var statsDiv = document.querySelector('#gameStats');
+	statsDiv.innerHTML = "";
+	db.collection("games").doc(gameCode)
+	.collection("players").get()
+	.then(function(results){
+		console.log(results.length); //should be two for what i'm testing rn (delete this later)
+		results.forEach(function(doc){
+			console.log(doc.data());
+			var player = doc.data()['name'];
+			var foundBy = doc.data()['foundBy'];
+			var player_span = document.createElement('span');
+			player_span.setAttribute('class', 'player');
+			player_span.innerHTML = player;
+			var p = document.createElement('p');
+			var foundBy_span = document.createElement('span');
+			foundBy_span.setAttribute('class', 'foundBy');
+			if (foundBy.length == 0){
+				p.innerHTML = player + " has not been found by anyone yet!";
+			}
+			else if (foundBy.length >= 1){
+				p.appendChild(player_span);
+				var txt_btwn = document.createTextNode(" was found by ");
+				p.appendChild(txt_btwn);
+				if(foundBy.length==1){
+					foundBy_span.innerHTML = foundBy[0];
+					p.appendChild(foundBy_span);
+
+				}
+				else{
+					for (var f=0; f<foundBy.length-1; f++){
+						if (f!=foundBy.length-2){
+							foundBy_span.innerHTML += foundBy[f] + ", "
+						}
+						else{
+							foundBy_span.innerHTML += foundBy[f] + " and "
+						}
+					}
+					foundBy_span.innerHTML += foundBy[foundBy.length-1];
+					p.appendChild(foundBy_span);
+								
+				}
+				
+			}
+			statsDiv.appendChild(p);
+		})
+
+	})
 	//will want to run this if just found a player on your page. but won't bother for other players
+	//oh yeah, that's a good idea
 }
 
 function searchForPlayers(){
@@ -207,7 +250,7 @@ function searchForPlayers(){
 						foundBy: firebase.firestore.FieldValue.arrayUnion(yourName), 
 					}, {merge: true});
 					
-					updateStats();
+					// updateStats();
 				}
 			});
 		});
@@ -241,17 +284,12 @@ function isGIF(gif_string){
 
 	
 
-function validateGameCreation(joinOrCreate, joinCode, name, duration, site, gif){
+function validateGameCreation(joinOrCreate, joinCode, name, site, gif){
 	if (joinCode =='' && joinOrCreate == 'join'){
 		document.querySelector('#joinCode').setAttribute('class', 'invalid');
 		return "You must enter a join code.";
 	}
-	else if (joinOrCreate == "start" && (isNaN(duration) || duration<1 || duration>1440)){ //duration should be a number-- decide if doing minutes or hours or what
-		//change parameters if you want later, and change form since obviously can't do just in minutes-- currently must be at least a minute and no more than 24 hours
-		//COULD EVEN DO A DROPDOWN YEAH THAT"S A GOOD IDEA
-		document.querySelector('#duration').setAttribute('class', 'invalid');
-  		return "Please enter a valid number for duration.";
-	}
+
 
 	else if (name == '' || typeof name != 'string'){ //name should be a non-empty string. Maybe also check if name already in game but let's do that leter
 		document.querySelector('#name').setAttribute('class', 'invalid');
@@ -298,9 +336,8 @@ function newGame(joinOrCreate){
 	    el.classList.remove("invalid");
 	});
 
-	var name, duration, site, gif, code, joinCode;
+	var name, site, gif, code, joinCode;
 	name = document.querySelector('#name').value;
-	duration = document.querySelector('#duration').value; 
 	site = document.querySelector('#site').value;
 	joinCode = document.querySelector('#joinCode').value;
 	try{
@@ -311,14 +348,13 @@ function newGame(joinOrCreate){
 	}
 
 
-	var validateGame = validateGameCreation(joinOrCreate, joinCode, name, duration, site, gif);
+	var validateGame = validateGameCreation(joinOrCreate, joinCode, name, site, gif);
 	console.log(validateGame);
 	if (validateGame==true){ //go ahead and create game
 		console.log('creating game');
 		if (joinOrCreate == "create"){
 			code = generateUID(); //for new game
 			db.collection("games").doc(code).set({
-			duration: duration,
 			code: code,
 			time_created: Date.now()
 			

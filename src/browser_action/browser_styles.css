@@ -8,8 +8,10 @@
 }
 
 
-.found-player-gif{
-	position: fixed;
-	top: 0px;
-	left: 0px;
+.player{
+	color: blue;
+}
+
+.foundBy{
+	color:green;
 }
