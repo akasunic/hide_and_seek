@@ -6,10 +6,11 @@ chrome.runtime.onMessage.addListener(
     function(message) {
       if (message.task == 'showgif'){
       	// console.log('should show gif');
+      	console.log('received showgif message');
 
-      	var gif_link = message.link;
+      	var gif_links = message.links;
       	chrome.tabs.executeScript({
-      	  code: 'var gif_link = ' + JSON.stringify(gif_link)
+      	  code: 'var gif_links = ' + JSON.stringify(gif_links)
          }, function(){
          	chrome.tabs.executeScript({file:'showGIF.js'});
 		});
