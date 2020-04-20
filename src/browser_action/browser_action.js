@@ -317,7 +317,7 @@ function newGame(joinOrCreate){
 		console.log('creating game');
 		if (joinOrCreate == "create"){
 			code = generateUID(); //for new game
-			db.collection("games").doc(code).create({
+			db.collection("games").doc(code).set({
 			duration: duration,
 			code: code,
 			time_created: Date.now()
@@ -325,7 +325,7 @@ function newGame(joinOrCreate){
 		})
 		.then(function(){
 			db.collection("games").doc(code)
-				.collection("players").doc(name).create({
+				.collection("players").doc(name).set({
 					name: name,
 					hidingPlace: site,
 					gif: gif,
@@ -343,7 +343,7 @@ function newGame(joinOrCreate){
 				yourSite = "http://" + site;
 			}
 			//will need to set other things besides game code!! But just do for now
-			chrome.storage.sync.create({
+			chrome.storage.sync.set({
 				gameCode: gameCode, 
 				name: yourName,
 				site: yourSite
@@ -355,6 +355,15 @@ function newGame(joinOrCreate){
 		//I KNOW THIS IS BAD FORM, BUT...
 		else if (joinOrCreate == "join"){
 			console.log("joincode is: ", joinCode);
+
+
+			db.collection("games").doc(joinCode)
+			.collection("players").doc(name).get().then(function(doc){
+				if(doc.exists){
+					name = name + "_again";
+
+				}//ends what to do if name already in group
+			}).then(function(){
 			db.collection("games").doc(joinCode)
 			.collection("players").doc(name).set({
 				name:name,
@@ -378,7 +387,8 @@ function newGame(joinOrCreate){
 				});
 				makePlayScreen();
 			});
-		}
+			});//ends the then function after we checked if the doc exists
+		}//ends join code (else statement)
 		
 
 	//should move to the next screen and show the code
