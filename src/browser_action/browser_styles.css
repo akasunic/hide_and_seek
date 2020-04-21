@@ -15,3 +15,7 @@
 .foundBy{
 	color:green;
 }
+
+body > *{
+	display:none;
+}

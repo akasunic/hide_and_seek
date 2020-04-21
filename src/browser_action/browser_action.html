@@ -3,6 +3,7 @@
 	<link rel="stylesheet" type="text/css" href="browser_styles.css">
 	<script type="text/javascript" src="browser_action.js"></script>
 </head>
+<body>
 
 <!-- FOLLOWING JUST TO TEST FOR NOW!!! -->
 <!-- <h2># 1 GIF loaded - preview image</h2>
@@ -20,8 +21,7 @@
 <div id="startOrJoin">
 	<!-- <form> -->
 		<div id="newGameError" class="error"></div>
-		<label class="joinOnly">Game Code</label>
-		<input class="joinOnly" id="joinCode" type="text">
+		
 		<label>Your Name</label>
 		<input type="text" placeholder="Your Name" id="name">
 		
@@ -32,6 +32,8 @@
 		<button id="search">Search</button>
 		<div id="search_results">
 		</div>
+		<label class="joinOnly">Game Code</label>
+		<input class="joinOnly" id="joinCode" type="text">
 		<button class="joinOnly" id="joinButton">Join Game</button>
 		<button class="startOnly" id="create">Create Game</button>
 	<!-- </form> -->
@@ -54,4 +56,5 @@
 
 
 </div>
+</body>
 

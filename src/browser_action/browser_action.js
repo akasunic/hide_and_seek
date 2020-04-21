@@ -286,14 +286,29 @@ function isGIF(gif_string){
 	return false;
 }
 
-	
+
+// use the following function to help with verifying for joining or creating a game 
+// (must exist for join, must not exist for create)
+// may not check for create, though-- deciding about backend stuff still
+function doesCodeExist(someCode){
+	// var return_statement;
+	return db.collection("games").doc(someCode).get().then(function(doc){
+		if(doc.exists){
+			console.log('doc exists!!');
+			return true;
+		}
+		else{
+			return false;
+		}
+	});
+}
+
 
 function validateGameCreation(joinOrCreate, joinCode, name, site, gif){
-	if (joinCode =='' && joinOrCreate == 'join'){
+if (joinCode =='' && joinOrCreate == 'join'){
 		document.querySelector('#joinCode').setAttribute('class', 'invalid');
 		return "You must enter a join code.";
 	}
-
 
 	else if (name == '' || typeof name != 'string'){ //name should be a non-empty string. Maybe also check if name already in game but let's do that leter
 		document.querySelector('#name').setAttribute('class', 'invalid');
@@ -312,6 +327,8 @@ function validateGameCreation(joinOrCreate, joinCode, name, site, gif){
 		//but currently using a generic gif/png/img checker
 		//thanks to https://stackoverflow.com/questions/169625/regex-to-check-if-valid-url-that-ends-in-jpg-png-or-gif
 	}
+
+	
 
 	else{
 
@@ -344,6 +361,7 @@ function newGame(joinOrCreate){
 	name = document.querySelector('#name').value;
 	site = document.querySelector('#site').value;
 	joinCode = document.querySelector('#joinCode').value;
+	console.log(joinCode)
 	try{
 		gif = document.querySelector('#selected_gif').src;
 	}
@@ -352,9 +370,9 @@ function newGame(joinOrCreate){
 	}
 
 
-	var validateGame = validateGameCreation(joinOrCreate, joinCode, name, site, gif);
-	console.log(validateGame);
-	if (validateGame==true){ //go ahead and create game
+		
+
+	if (validateGameCreation(joinOrCreate, joinCode, name, site, gif)==true){ //valid, so go ahead and create game
 		console.log('creating game');
 		if (joinOrCreate == "create"){
 			code = generateUID(); //for new game
@@ -388,16 +406,24 @@ function newGame(joinOrCreate){
 				name: yourName,
 				site: yourSite
 			});
+			alert("Share the following game code with your friends: " + gameCode);
 			makePlayScreen();
 		});
 		} //ends the create only code
 
 		//I KNOW THIS IS BAD FORM, BUT...
 		else if (joinOrCreate == "join"){
-			console.log("joincode is: ", joinCode);
 
-
-			db.collection("games").doc(joinCode)
+			doesCodeExist(joinCode).then(function(value){
+				console.log(value);
+				if(value==false){//extra check: can only join if already exists in db
+					
+					document.querySelector('#newGameError').innerHTML = "This is not a valid join code.";
+					document.querySelector('#joinCode').setAttribute('class', 'invalid');
+					onetime(document.querySelector("#joinButton"), "click", joinGame);
+				}
+				else{
+					db.collection("games").doc(joinCode)
 			.collection("players").doc(name).get().then(function(doc){
 				if(doc.exists){
 					name = name + "_again";
@@ -428,6 +454,12 @@ function newGame(joinOrCreate){
 				makePlayScreen();
 			});
 			});//ends the then function after we checked if the doc exists
+
+
+				}
+			}); //ends doesCodeExist part
+
+			
 		}//ends join code (else statement)
 		
 
@@ -435,7 +467,7 @@ function newGame(joinOrCreate){
 	} //ends game validaiton code
 	else{ //if not valid, stay on same screen
 		console.log('input not valid');
-		document.querySelector('#newGameError').innerHTML = validateGame;
+		document.querySelector('#newGameError').innerHTML = validateGameCreation(joinOrCreate, joinCode, name, site, gif);
 
 
 		//need to be able to create again
