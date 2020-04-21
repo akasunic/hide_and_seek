@@ -187,7 +187,9 @@ function updateStats(){
 			var foundBy_span = document.createElement('span');
 			foundBy_span.setAttribute('class', 'foundBy');
 			if (foundBy.length == 0){
-				p.innerHTML = player + " has not been found by anyone yet!";
+				p.appendChild(player_span);
+				var notFound = document.createTextNode(" has not been found by anyone yet!");
+				p.appendChild(notFound);
 			}
 			else if (foundBy.length >= 1){
 				p.appendChild(player_span);
@@ -280,7 +282,7 @@ function isURL(url_string){
 
 
 function isGIF(gif_string){
-	regexp = /\.(jpg|png|gif)$/;
+	regexp = /\.(jpg|png|gif|mov)$/;
 	if (isURL(gif_string)){
 		return regexp.test(gif_string);
 	}
@@ -407,7 +409,7 @@ function newGame(joinOrCreate){
 				name: yourName,
 				site: yourSite
 			});
-			alert("Share the following game code with your friends: " + gameCode);
+			alert("Copy and share the following game code with your friends: " + gameCode);
 			makePlayScreen();
 		});
 		} //ends the create only code
@@ -513,7 +515,7 @@ function httpGetAsync(theUrl, callback)
 function tenorCallback_search(responsetext)
 {
 	var searchResults = document.querySelector('#search_results');
-    searchResults.innerHTML = '<p>Click a GIF below to select</p>';
+    searchResults.innerHTML = '<p style="font-weight:bold">Click a GIF below to select.</p>';
 
     // parse the json response
     var response_objects = JSON.parse(responsetext);

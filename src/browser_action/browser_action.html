@@ -28,9 +28,11 @@
 		
 		<label>Your website "hiding place" (double check the address!):</label>
 		<input placeholder="example.com" type ="text" id="site">
-		<label>Search for a GIF. Other players will see it when they find you.</label>
-		<input placeholder="search terms here" id="gif_search" type="text">
-		<button id="search">Search</button>
+		<label>Search for a GIF your friends will see when they find you.</label>
+		<div id="search_bar">
+			<input placeholder="search terms here" id="gif_search" type="text">
+			<button id="search">Search</button>
+		</div>
 		<div id="search_results">
 		</div>
 		<button class="joinOnly" id="joinButton">Join Game</button>
@@ -39,8 +41,8 @@
 </div>
 
 <div id = "gameInProgress">
-	<p>Current Game Code: <span id="gameCode"></span></p>
-	<p>Hi, <strong><span id="yourName"></span></strong>! In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends!</p>
+	<h3>code to play: <span id="gameCode"></span></h3>
+	<p>Hi, <span id="yourName"></span>! In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends!</p>
 <!-- 	<div id="noPlayer">
 		No one is here. Keep 
 	</div>
@@ -50,8 +52,8 @@
 		<img src="https://gph.is/st/MxVQQ1m" alt="trying out...">
 	</div> -->
 	<div id = "gameStats"></div>
-	<button id="leaveGame">Leave Game</button>
-	<button id="quitGame">Quit Game for Everyone</button>
+	<button id="leaveGame">leave game</button>
+	<button id="quitGame">end game for all</button>
 
 
 </div>

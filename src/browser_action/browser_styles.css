@@ -4,28 +4,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Karla&display=swap');
 
+:root {
+  --go-color:#90ccf4;
+  --neutral-color:#5da2d5;
+  --splash-color:#f3d250;
+  --danger-color:#f78888;
+  --body-background:white;
+}
 
 /*placeholder styles...will be working on actual formatting later!!*/
 .invalid{
 	/*border: 2 2 2 2px #CC0000;*/
-	box-shadow: 0 0 3px #CC0000;
+	box-shadow: 0 0 3px var(--danger-color);
 }
 
 .error{
-	color:#CC0000;
+	color:var(--danger-color);
 }
 
 
 .player{
-	color: blue;
+	color: var(--danger-color);
 }
 
 .foundBy{
-	color:green;
+	color:var(--neutral-color);
 }
 
+body{
+	background-color:var(--body-background);
+	/*color:var(--danger-color);*/
+	color:black;
+}
 /*so that default display as changing screens is blank*/
 body > *{
+	/*background-color:var(--body-background);*/
 	display:none;
 }
 
@@ -33,22 +46,22 @@ body{
 	margin: 20 20 20 20px;
 	/*font-family: 'Bangers', cursive;*/
 	font-family: 'Karla', sans-serif;
-/*	padding: 20px;*/
-	/*display:flex;*/
-
 }
 
 /*https://visme.co/blog/website-color-schemes/ <-- see first for colors chosen*/
 button{
 	font-size:small;
-	/*font-family: 'Sniglet', cursive;*/
 	font-family: 'Karla', sans-serif;
 	border-radius: 10px;
 	border:none;
 	padding:10px;
+	width:40%;
 	margin:10px;
-	background-color:#e8a87c;
-	color:white;
+	background-color:var(--splash-color);
+	/*color:white;*/
+	color:black;
+	/*color:var(--danger-color);*/
+	float:center;
 
 
 	/*justify-content:center;*/
@@ -57,28 +70,47 @@ button{
 }
 
 #start{
-	background-color:#c38d9e;
+	background-color:var(--go-color);
 
 }
 #quitGame{
-	background-color:#e27d60;
+	background-color:var(--danger-color);
+}
+
+#search_bar{
+	white-space: nowrap;
 }
 
 
 #search{
 	margin:0px;
 	padding:5px;
-	float:right;
+	margin-right:10px;
+	width:auto;
+	display:inline-block;
 
 }
 
 #joinButton, #create{
-	background-color:#41b3a3;
+	background-color:var(--go-color);
+	width: 50%;
+	margin: auto;
+	display:block;
 }
 
 button:hover{
-	background-color: #85d0cb !important;
+	/*color: var(--danger-color) !important;*/
+	opacity: 0.6 !important;
+	/*background-color: var(--neutral-color) !important;*/
 
+}
+
+/*applies to all gif elements*/
+.unselected, #selected_gif{
+	width:70%;
+	margin:auto;
+	display:block;
+	padding: 10px;
 }
 
 label{
@@ -90,23 +122,27 @@ label{
 
 input{
 	margin:0px 10px 10px 10px;
-	display:block;
+	/*display:block;*/
 	width:300px;
 
 }
 
+#gif_search{
+	width: 240px;
+}
 
+#newGameError, #search_results{
+	margin:10px;
+}
 
+#gameInProgress p {
+	margin:10px;
+}
 
-
-
-
-
-
-
-h2{
+h2, h3{
 	font-family: 'Rubik', sans-serif;
-	color:#41b3a3;
+	color:var(--danger-color);
+	/*color:var(--splash-color);*/
 	margin:10px;
 	text-align:left;
 	min-width: 300px;
