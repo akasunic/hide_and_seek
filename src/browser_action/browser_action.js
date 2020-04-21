@@ -124,10 +124,11 @@ function endGame(){
 
 function leaveGame(){
 	//delete this player from the game
+	alert("Sorry to see you go, " + yourName + "! You can always re-enter while the game is still in play.");
 	db.collection("games").doc(gameCode)
 		.collection("players").doc(yourName).delete();
+	
 	chrome.storage.sync.clear();
-	alert("Sorry to see you go,", yourName, "! You can always rejoin...");
 	makeWelcomeScreen();
 
 }
@@ -526,7 +527,7 @@ function tenorCallback_search(responsetext)
     	img.setAttribute('class', 'unselected');
     	searchResults.appendChild(img);
     	img.addEventListener('click', function(){
-    		searchResults.querySelector('p').innerHTML="You've selected this GIF";
+    		searchResults.querySelector('p').innerHTML="You've selected this GIF:";
     		this.removeAttribute('class', 'unselected');
     		this.id = "selected_gif";
     		Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
