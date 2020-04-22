@@ -22,8 +22,8 @@ function showTheGif(gif_link){
 		height = foundGIF.height;	
 		width = foundGIF.width;
 
-	// Will execute myCallback every 0.5 seconds 
-		var intervalID = window.setInterval(myCallback, 1000);
+	// Will execute myCallback every 2 seconds (1000 = sec)
+		var intervalID = window.setInterval(myCallback, 2000);
 	}
 
 	function myCallback() {

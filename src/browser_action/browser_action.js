@@ -1,7 +1,6 @@
 //clearing storage for testing purposes, remove this line later
 // chrome.storage.sync.clear();
 // chrome.storage.sync.set({'gameCode':"ijpiyo"});
-
 console.log('browser action script is running');
 // document.querySelector('body').style.color = "red";
 // chrome.runtime.sendMessage("showgif");
@@ -39,7 +38,7 @@ chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
 			else{
 				//if you have a game code stored, but it doesn't exist in the database
 				chrome.storage.sync.clear();
-				alert("Sorry, the game you were playing no longer exists. Someone ended it.");
+				alert("Sorry, the game you were playing no longer exists.");
 				//maybe need an elongated goodbye???
 				makeWelcomeScreen();
 
@@ -113,7 +112,7 @@ function makeNewGameScreen(createOrJoin){
 
 function endGame(){
 	//note that the players subcollection will still exist--can just periodically clean out the database manually
-	var confirmResults = confirm("This will end the game for ALL players!!");
+	var confirmResults = confirm("Are you sure? This will end the game for ALL players!!");
 	if(confirmResults == true){
 		db.collection("games").doc(gameCode).delete();
 		chrome.storage.sync.clear();
@@ -129,8 +128,11 @@ function leaveGame(){
 		.collection("players").doc(yourName).delete();
 	
 	chrome.storage.sync.clear();
+	gameCode = undefined;
+	yourName=undefined;
+	yourSite=undefined;
 	makeWelcomeScreen();
-
+	
 }
 
 function makePlayScreen(){
@@ -293,7 +295,9 @@ function isGIF(gif_string){
 // use the following function to help with verifying for joining or creating a game 
 // (must exist for join, must not exist for create)
 // may not check for create, though-- deciding about backend stuff still
-function doesCodeExist(someCode){
+//CHANGING THIS!!! safeJoinCode checks if exists AND checks that the number of players isn't greater than max_players
+//which I'm going to set as 20 for now
+function safeJoinCode(someCode){
 	// var return_statement;
 	return db.collection("games").doc(someCode).get().then(function(doc){
 		if(doc.exists){
@@ -324,7 +328,7 @@ if (joinCode =='' && joinOrCreate == 'join'){
 	}
 
 	else if (isGIF(gif)==false){//gif should be a displayable gif, not sure how to test
-		return "You did not select a valid GIF.";
+		return "You must select a GIF.";
 		// if want to be more specifc, could change tostarts with https://media.tenor.com/
 		// and ends in tenor.gif
 		//but currently using a generic gif/png/img checker
@@ -362,9 +366,9 @@ function newGame(joinOrCreate){
 
 	var name, site, gif, code, joinCode;
 	name = document.querySelector('#name').value;
-	site = document.querySelector('#site').value;
-	joinCode = document.querySelector('#joinCode').value;
-	console.log(joinCode)
+	site = document.querySelector('#site').value.trim();
+	joinCode = document.querySelector('#joinCode').value.trim();
+	console.log(joinCode);
 	try{
 		gif = document.querySelector('#selected_gif').src;
 	}
@@ -417,9 +421,9 @@ function newGame(joinOrCreate){
 		//I KNOW THIS IS BAD FORM, BUT...
 		else if (joinOrCreate == "join"){
 
-			doesCodeExist(joinCode).then(function(value){
+			safeJoinCode(joinCode).then(function(value){
 				console.log(value);
-				if(value==false){//extra check: can only join if already exists in db
+				if(value==false){//extra check: can only join if already exists in db 
 					
 					document.querySelector('#newGameError').innerHTML = "This is not a valid join code.";
 					document.querySelector('#joinCode').setAttribute('class', 'invalid');
@@ -460,7 +464,7 @@ function newGame(joinOrCreate){
 
 
 				}
-			}); //ends doesCodeExist part
+			}); //ends safeJoinCode part
 
 			
 		}//ends join code (else statement)
@@ -515,28 +519,40 @@ function httpGetAsync(theUrl, callback)
 function tenorCallback_search(responsetext)
 {
 	var searchResults = document.querySelector('#search_results');
-    searchResults.innerHTML = '<p style="font-weight:bold">Click a GIF below to select.</p>';
+	try{
+			    // parse the json response
+	    var response_objects = JSON.parse(responsetext);
 
-    // parse the json response
-    var response_objects = JSON.parse(responsetext);
+	    top_gifs = response_objects["results"];
 
-    top_gifs = response_objects["results"];
-    // searchResults 
-    // load the GIFs --
-    for (var i=0; i<top_gifs.length; i++){
-    	var img = document.createElement('img');
-    	img.src = top_gifs[i]["media"][0]["tinygif"]["url"];
-    	img.setAttribute('class', 'unselected');
-    	searchResults.appendChild(img);
-    	img.addEventListener('click', function(){
-    		searchResults.querySelector('p').innerHTML="You've selected this GIF:";
-    		this.removeAttribute('class', 'unselected');
-    		this.id = "selected_gif";
-    		Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
-    			image.style.display = 'none';
-    		});
-    	});
-    }
+		searchResults.innerHTML = '<p style="font-weight:bold">Click a GIF below to select.</p>';
+
+
+    
+
+	    // searchResults 
+	    // load the GIFs --
+	    for (var i=0; i<top_gifs.length; i++){
+	    	var img = document.createElement('img');
+	    	img.src = top_gifs[i]["media"][0]["tinygif"]["url"];
+	    	img.setAttribute('class', 'unselected');
+	    	searchResults.appendChild(img);
+	    	img.addEventListener('click', function(){
+	    		searchResults.querySelector('p').innerHTML="You've selected this GIF:";
+	    		this.removeAttribute('class', 'unselected');
+	    		this.id = "selected_gif";
+	    		Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
+	    			image.style.display = 'none';
+	    		});
+	    	});
+	    }
+	}
+	catch(err){
+		//if response_objects is undefined because there are no results
+		searchResults.innerHTML = '<p style="font-weight:bold; color:var(--danger-color);">No GIFs match your search terms.</p>';
+
+	}
+
     return;
 }
 
