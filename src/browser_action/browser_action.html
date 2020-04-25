@@ -5,13 +5,6 @@
 </head>
 <body>
 
-<!-- FOLLOWING JUST TO TEST FOR NOW!!! -->
-<!-- <h2># 1 GIF loaded - preview image</h2>
-<img id="preview_gif" src="" alt="" style="width:220px;height:164px;">
-<h2># 1 GIF loaded - share image</h2>
-<img id="share_gif" src="" alt="" style="width:498px;height:372px;"> -->
-<!-- DELETE CODE ABOVE LATER, WILL SAVE FOR NOW -->
-
 <div id="welcome">
 	<h2>Let's play virtual hide-and-go-seek!</h2>
 	<button id="start">start new game</button>
@@ -24,13 +17,13 @@
 		<label class="joinOnly">Game code:</label>
 		<input class="joinOnly" id="joinCode" type="text">
 		<label>Your name</label>
-		<input type="text" placeholder="Your Name" id="name">
+		<input type="text"  id="name">
 		
 		<label>Your website "hiding place" (double check the address!):</label>
-		<input placeholder="example.com" type ="text" id="site">
+		<input type ="text" id="site">
 		<label>Search for a GIF your friends will see when they find you.</label>
 		<div id="search_bar">
-			<input placeholder="search terms here" id="gif_search" type="text">
+			<input id="gif_search" type="text">
 			<button id="search">Search</button>
 		</div>
 		<div id="search_results">
@@ -43,14 +36,6 @@
 <div id = "gameInProgress">
 	<h3>code to play: <span id="gameCode"></span></h3>
 	<p>Hi, <span id="yourName"></span>! In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends!</p>
-<!-- 	<div id="noPlayer">
-		No one is here. Keep 
-	</div>
-
-	<div id = "foundPlayer">
-
-		<img src="https://gph.is/st/MxVQQ1m" alt="trying out...">
-	</div> -->
 	<div id = "gameStats"></div>
 	<button id="leaveGame">leave game</button>
 	<button id="quitGame">end game for all</button>

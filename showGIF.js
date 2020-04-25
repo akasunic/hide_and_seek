@@ -1,7 +1,7 @@
-//Note that the gif_links variable already sent through background.js message script
-//need to make sure not already showing a gif
-//also trying to protect against multiple players choosing same site-- so, show multiple gifs
+///shows the gif-- run for each gif link received (see backgrund.js to see how message received/sent)
 var gif_html = document.querySelectorAll(".foundGIF");
+
+
 if(gif_html.length == 0){
 	for(var g=0; g<gif_links.length; g++){
 		showTheGif(gif_links[g]);
@@ -12,7 +12,6 @@ function showTheGif(gif_link){
 	var foundGIF = document.createElement("img");
 	foundGIF.src = gif_link;
 	foundGIF.setAttribute("class", "foundGIF");
-	// foundGIF.id = "sampleGIF";
 	foundGIF.style.position = "fixed";
 	foundGIF.style.top = "0px";
 	foundGIF.style.left = "0px";
