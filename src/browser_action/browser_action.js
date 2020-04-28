@@ -108,6 +108,17 @@ window.onload = function(){
 	    });
 	}
 
+	function resetGameInputs(){
+		gameCode = undefined; yourName = undefined, yourSite = undefined;
+	    var inputs = document.querySelectorAll('input');
+	    [].forEach.call(inputs, function(el){
+	    	el.value = '';
+	    });
+	    document.querySelector('#search_results').innerHTML = '';
+	    var statsDiv = document.querySelector('#gameStats');
+	    statsDiv.innerHTML = "";
+	}
+
 	/*function to end game for all players
 	note that the players subcollection will still exist--can just periodically clean out the database manually
 	 */
@@ -116,6 +127,7 @@ window.onload = function(){
 	    if (confirmResults == true) {
 	        db.collection("games").doc(gameCode).delete().catch(function(error){console.log(error)});
 	        chrome.storage.sync.clear();
+	        resetGameInputs();
 	        makeWelcomeScreen();
 	    }
 	}
@@ -127,15 +139,7 @@ window.onload = function(){
 	        .collection("players").doc(yourName).delete().catch(function(error){console.log(error)});
 
 	    chrome.storage.sync.clear();
-	    // window.close();
-	    gameCode = undefined; yourName = undefined, yourSite = undefined;
-	    var inputs = document.querySelectorAll('input');
-	    [].forEach.call(inputs, function(el){
-	    	el.value = '';
-	    });
-	    document.querySelector('#search_results').innerHTML = '';
-	    var statsDiv = document.querySelector('#gameStats');
-	    statsDiv.innerHTML = "";
+	    resetGameInputs();
 	    makeWelcomeScreen();
 	}
 
@@ -258,7 +262,8 @@ window.onload = function(){
 	                var data = doc.data();
 	                var site = data['hidingPlace'].toLowerCase();
 	                var gif = data['gif'];
-	                if (compareURLS(thisUrl, site)) {
+	                var playerName = data['name'];
+	                if (yourName != playerName &&compareURLS(thisUrl, site) ) { //don't add if it's yourName
 	                    //show the GIF associated with that player
 	                    links.push(gif);
 
