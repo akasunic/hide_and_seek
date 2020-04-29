@@ -189,49 +189,91 @@ window.onload = function(){
 	        .then(function(results) {
 	        	var statsDiv = document.querySelector('#gameStats');
 	    		statsDiv.innerHTML = "";
-	        
+	        	var toFind = [];
 	            results.forEach(function(doc) {
+	            	var hasHave = 'has';
+	            	var wasWere = 'was';
 	                
 	                var player = doc.data()['name'];
+
 	                var foundBy = doc.data()['foundBy'];
 	                var player_span = document.createElement('span');
 	                player_span.setAttribute('class', 'player');
+	                if (player == yourName){
+	                	player_span.setAttribute('class', 'found_player');
+	                	player_span.setAttribute('class', 'you');
+	                	player = 'you';
+	                	hasHave = 'have';
+	                	wasWere = 'were';
+
+
+	                }
 	                player_span.innerHTML = player;
 	                var p = document.createElement('p');
 	                var foundBy_span = document.createElement('span');
 	                foundBy_span.setAttribute('class', 'foundBy');
+
+	                
 	                if (foundBy.length == 0) {
 	                    p.appendChild(player_span);
-	                    var notFound = document.createTextNode(" has not been found by anyone yet!");
+	                    var notFound = document.createTextNode(" " + hasHave + " not been found by anyone yet!");
 	                    p.appendChild(notFound);
 	                } else if (foundBy.length >= 1) {
 	                    p.appendChild(player_span);
-	                    var txt_btwn = document.createTextNode(" was found by ");
+	                    var txt_btwn = document.createTextNode(" " + wasWere + " found by ");
 	                    p.appendChild(txt_btwn);
 	                    if (foundBy.length == 1) {
-	                        foundBy_span.innerHTML = foundBy[0];
-	                        p.appendChild(foundBy_span);
+	                    	if (foundBy[0] == yourName){
+	                    		foundBy_span.innerHTML = "you";
+	                    		player_span.setAttribute('class', 'found_player');
+
+	                    	}
+	                        else{
+	                        	foundBy_span.innerHTML = foundBy[0];            
+	                    	}
+	                    	p.appendChild(foundBy_span);
 
 	                    } else {
 	                        for (var f = 0; f < foundBy.length - 1; f++) {
+	                        	if (foundBy[f] == yourName) {
+	                        		foundBy[f] = "you";
+	                        		player_span.setAttribute('class', 'found_player');
+	                        	}
+	                     
 	                            if (f != foundBy.length - 2) {
 	                                foundBy_span.innerHTML += foundBy[f] + ", "
 	                            } else {
-	                                foundBy_span.innerHTML += foundBy[f] + " and "
+	                                foundBy_span.innerHTML += foundBy[f] + " & "
 	                            }
+	                        }
+	                        if (foundBy[foundBy.length-1] == yourName) {
+                        		foundBy[foundBy.length-1] = "you";
+                        		player_span.setAttribute('class', 'found_player');
 	                        }
 	                        foundBy_span.innerHTML += foundBy[foundBy.length - 1];
 	                        p.appendChild(foundBy_span);
 
 	                    }
+	                    if (player_span.hasAttribute('class', 'found_player')==false){
+	              			toFind.push(player);
+	              		}
 
 	                }
 	                statsDiv.appendChild(p);
-	            })
+	            });
+	            console.log('toFind:', toFind.length);
+	            if(toFind.length==0){
+	            	statsDiv.innerHTML += "<h3>You found all the players!</h3>";
+	          	
+	            }
+	            else{
+	            	statsDiv.innerHTML += '<h3>You still need to find ' + toFind + '</h3>';
+	            }
 
 	        }).catch(function(error) {
 	            console.log(error);
 	        });
+
 
 	}
 
@@ -263,7 +305,7 @@ window.onload = function(){
 	                var site = data['hidingPlace'].toLowerCase();
 	                var gif = data['gif'];
 	                var playerName = data['name'];
-	                if (yourName != playerName &&compareURLS(thisUrl, site) ) { //don't add if it's yourName
+	                if (yourName != playerName && compareURLS(thisUrl, site) ) { //don't add if it's yourName
 	                    //show the GIF associated with that player
 	                    links.push(gif);
 
@@ -340,7 +382,7 @@ window.onload = function(){
 	}
 
 	/*front end validation for game creation*/
-	function validateGameCreation(joinOrCreate, joinCode, name, site, gif) {
+	function validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue) {
 	    if (joinCode == '' && joinOrCreate == 'join') {
 	        document.querySelector('#joinCode').setAttribute('class', 'invalid');
 	        return "You must enter a join code.";
@@ -350,6 +392,9 @@ window.onload = function(){
 	    } else if (isURL(site) == false) { //site should be a real site
 	        document.querySelector('#site').setAttribute('class', 'invalid');
 	        return "You must enter a valid website as your hiding place.";
+	    } else if (clue == '') { //should have a clue
+	        document.querySelector('#site').setAttribute('class', 'invalid');
+	        return "You must give a clue.";
 	    } else if (isGIF(gif) == false) { //gif should be a displayable gif, not sure how to test
 	        return "You must select a GIF.";
 	        // if want to be more specifc, could change tostarts with https://media.tenor.com/
@@ -384,10 +429,11 @@ window.onload = function(){
 	        el.classList.remove("invalid");
 	    });
 
-	    var name, site, gif, code, joinCode;
-	    name = document.querySelector('#name').value;
+	    var name, site, gif, code, joinCode, clue;
+	    name = document.querySelector('#name').value.trim();
 	    site = document.querySelector('#site').value.trim();
 	    joinCode = document.querySelector('#joinCode').value.trim();
+	    clue = document.querySelector('#clue').value.trim();
 	    console.log(joinCode);
 	    try {
 	        gif = document.querySelector('#selected_gif').src;
@@ -395,7 +441,7 @@ window.onload = function(){
 	        gif = 'no selection';
 	    }
 
-	    if (validateGameCreation(joinOrCreate, joinCode, name, site, gif) == true) { //valid, so go ahead and create game
+	    if (validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue) == true) { //valid, so go ahead and create game
 	        if (joinOrCreate == "create") {
 	            code = generateUID(); //for new game
 	            db.collection("games").doc(code).set({
@@ -409,6 +455,7 @@ window.onload = function(){
 	                            name: name,
 	                            hidingPlace: site,
 	                            gif: gif,
+	                            clue: clue,
 	                            foundBy: []
 	                        });
 	                    console.log(name);
@@ -445,6 +492,7 @@ window.onload = function(){
 	                                    name: name,
 	                                    hidingPlace: site,
 	                                    gif: gif,
+	                                    clue:clue,
 	                                    foundBy: []
 	                                })
 	                                .then(function() {
@@ -464,7 +512,7 @@ window.onload = function(){
 	        //should move to the next screen and show the code
 	    } //ends game validaiton code
 	    else { //if not valid, stay on same screen
-	        document.querySelector('#newGameError').innerHTML = validateGameCreation(joinOrCreate, joinCode, name, site, gif);
+	        document.querySelector('#newGameError').innerHTML = validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue);
 	        if (joinOrCreate == "create") {
 	            onetime(document.querySelector("#create"), "click", createGame);
 	        } else if (joinOrCreate == "join") {

@@ -27,6 +27,15 @@
 	color: var(--danger-color);
 }
 
+.found_player{
+	color: var(--splash-color);
+}
+
+.you{
+	color: black!important;
+	font-size: medium;
+}
+
 .foundBy{
 	color:var(--neutral-color);
 }
