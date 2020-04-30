@@ -9,7 +9,7 @@ window.onload = function(){
 	var joinButton = document.querySelector('#join');
 
 	//see if there's a game in progress being stored through chrome
-	chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangoutLink'], function(items) {
+	chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangout'], function(items) {
 	    gameCode = items.gameCode;
 	    //if there is one, then make sure it actually exists in the db
 	    if (gameCode != undefined) {
@@ -21,7 +21,7 @@ window.onload = function(){
 	                    //then make the play screen
 	                    yourName = items.name;
 	                    yourSite = items.site;
-	                    hangoutLink = items.hangoutLink;
+	                    hangoutLink = items.hangout;
 	                    makePlayScreen();
 	                    
 	                } else {
@@ -165,6 +165,7 @@ window.onload = function(){
 	    document.querySelector('#startOrJoin').style.display = "none";
 	    gameInProgress.style.display = "block";
 	    console.log(yourName);
+	    console.log(hangoutLink);
 	    document.querySelector('#hangoutLink').href = hangoutLink;
 	    document.querySelector('#gameCode').innerHTML = gameCode;
 	    document.querySelector('#yourName').innerHTML = yourName;
@@ -607,13 +608,15 @@ window.onload = function(){
 	                                })
 	                                .then(function() {
 	                                	db.collection("games").doc(joinCode).get().then(function(doc){
-	                                		hangoutLink = doc.data['hangout'];
+	                                		hangoutLink = doc.data()['hangout'];
+	                                		console.log("HANGOUT", hangoutLink);
 	                                	}).then(function(){
 	                                	setChromeStorage(joinCode, name, site, hangoutLink);
-	                                }).catch(function(error) {
+	                                })
+	                            })
+	                                .catch(function(error) {
 	                                    console.log(error);
 	                                });
-	                            });
 	                        }); //ends the then function after we checked if the doc exists
 
 
@@ -649,7 +652,7 @@ window.onload = function(){
             gameCode: gameCode,
             name: yourName,
             site: yourSite,
-            hangoutLink: hangoutLink
+            hangout: hangoutLink
         });
         makePlayScreen();
 
