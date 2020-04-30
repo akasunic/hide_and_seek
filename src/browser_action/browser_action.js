@@ -41,6 +41,12 @@ window.onload = function(){
 	    }
 	});
 
+	//general helper function (stole from a stack overflow post, useful)
+	function hasClass(elem, className) {
+    	return elem.classList.contains(className);
+	}
+
+
 	function makeWelcomeScreen() {
 	    welcome.style.display = "block";
 	    document.querySelector('#startOrJoin').style.display = "none";
@@ -117,6 +123,8 @@ window.onload = function(){
 	    document.querySelector('#search_results').innerHTML = '';
 	    var statsDiv = document.querySelector('#gameStats');
 	    statsDiv.innerHTML = "";
+	    var cluesDiv = document.querySelector('#clues');
+	    cluesDiv.innerHTML = "";
 	}
 
 	/*function to end game for all players
@@ -177,6 +185,84 @@ window.onload = function(){
 	    return false;
 	}
 
+	function makeClueDiv(name, clue){
+		var statsDiv = document.querySelector('#gameStats');
+		var clueDiv = document.createElement('div');
+		// clueDiv.setAttribute("class", "clue_div");
+		clueDiv.setAttribute("class", "clue_div");
+		clueDiv.id = "clue_" + name;
+		var clueP = document.createElement('p');
+		clueP.setAttribute("class", "tooltiptext");
+		clueP.innerHTML = clue;
+		//thinking that maybe buttons.clue could have specific style, not sure
+		clueP.setAttribute('class', 'clue');
+		// var showClue = document.createElement('button');
+		// showClue.innerHTML = "show clues";
+		// showClue.setAttribute('class', 'show_clue');
+		// var hideClue = document.createElement('button');
+		// hideClue.id = "clue_" + name;
+		// hideClue.innerHTML = "hide clues";
+		// hideClue.setAttribute('class', 'hide_clue');
+		
+		
+		// clueDiv.appendChild(showClue);
+		clueDiv.appendChild(clueP);
+		// clueDiv.appendChild(hideClue);
+		document.getElementById(name).appendChild(clueDiv);
+
+
+		// Need to use event delegation bc dynamically added. Get the parent DIV, add click listener...
+		//referenced: https://davidwalsh.name/event-delegate
+		document.getElementById('gameStats').addEventListener("click", function(e){
+			//e.target is the clicked child element inside 
+			if (hasClass(e.target, 'hide_clue')){
+				var parent = e.target.parentNode;
+				parent.querySelector('.show_clue').style.display = 'block';
+				parent.querySelector('.clue').style.display = 'none';
+				parent.querySelector('.hide_clue').style.display = 'none';
+			}
+
+			else if (hasClass(e.target, 'show_clue')){
+				var parent = e.target.parentNode;
+				parent.querySelector('.hide_clue').style.display = 'block';
+				parent.querySelector('.show_clue').style.display = 'none';
+				parent.querySelector('.clue').style.display = 'block';
+
+			}
+
+			// alert(e.target);
+			// console.log("current: ", e.currentTarget);
+			// if (e.target && e.target.matches(".hide_clue")) {
+			// 	console.log(e.target);
+			// 	alert('hide button clicked');
+   // // 			 clueP.style.display = 'none';
+			// // showClue.style.display = 'block';
+			// // hideClue.style.display = 'none';
+			// }
+
+			// else if (e.target && e.target.matches("button.show_clue")){
+			// 	alert('show button clicked');
+			// }
+		});
+
+		// document.querySelector('#hideClue').addEventListener('click', function(){
+		// 	clueP.style.display = 'none';
+		// 	showClue.style.display = 'block';
+		// 	hideClue.style.display = 'none';
+		// });
+		// document.querySelector('#hideClue').addEventListener('click', function(){
+		// 	alert('showing clue');
+		// 	console.log('clicked on show clue');
+		// 	clueP.style.display = 'block';
+		// 	hideClue.style.display = 'block';
+		// 	// showClue.style.display = 'none';
+		// });
+
+		// var requestClue = document.createElement('button');
+		// return clueDiv;
+
+	}
+
 
 	/*Shows for each player who they've been found by.
 	Note that I chose to only have this function run when pressing browser icon (not updated continuously through an interval ftn)
@@ -197,11 +283,13 @@ window.onload = function(){
 	                var player = doc.data()['name'];
 
 	                var foundBy = doc.data()['foundBy'];
+	                var clue = doc.data()['clue'];
 	                var player_span = document.createElement('span');
 	                player_span.setAttribute('class', 'player');
 	                if (player == yourName){
 	                	player_span.setAttribute('class', 'found_player');
-	                	player_span.setAttribute('class', 'you');
+	                	player_span.id='you';
+	                	// player_span.setAttribute('class', 'you');
 	                	player = 'you';
 	                	hasHave = 'have';
 	                	wasWere = 'were';
@@ -209,6 +297,11 @@ window.onload = function(){
 
 	                }
 	                player_span.innerHTML = player;
+	                //THIS IS FOR THE TOOL TIP!!!
+	                var clue = document.createElement('span');
+	                clue.innerHTML = doc.data()['clue'];
+	                clue.setAttribute('class', 'tooltiptext');
+	                player_span.appendChild(clue);
 	                var p = document.createElement('p');
 	                var foundBy_span = document.createElement('span');
 	                foundBy_span.setAttribute('class', 'foundBy');
@@ -254,12 +347,19 @@ window.onload = function(){
 	                        p.appendChild(foundBy_span);
 
 	                    }
-	                    if (player_span.hasAttribute('class', 'found_player')==false){
+	                    if (player_span.classList.contains('found_player')==false){
 	              			toFind.push(player);
 	              		}
 
 	                }
-	                statsDiv.appendChild(p);
+	                var playerDiv = document.createElement('div');
+	                playerDiv.id = player;
+	                playerDiv.appendChild(p);
+	                statsDiv.appendChild(playerDiv);
+	                if(player_span.classList.contains('found_player') == false){ //only make clue divs for players you haven't found yet
+	                	makeClueDiv(player, clue);
+	                }
+	         
 	            });
 	            console.log('toFind:', toFind.length);
 	            if(toFind.length==0){
@@ -267,7 +367,7 @@ window.onload = function(){
 	          	
 	            }
 	            else{
-	            	statsDiv.innerHTML += '<h3>You still need to find ' + toFind + '</h3>';
+	            	statsDiv.innerHTML += '<h3>You still need to find ' + toFind.join(" and " ) + '!</h3>';
 	            }
 
 	        }).catch(function(error) {

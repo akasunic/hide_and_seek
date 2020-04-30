@@ -23,18 +23,29 @@
 }
 
 
-.player{
-	color: var(--danger-color);
-}
+
 
 .found_player{
 	color: var(--splash-color);
 }
-
-.you{
-	color: black!important;
-	font-size: medium;
+.found_player>span, .you>span{
+	display:none;
 }
+
+#you{
+	color: black!important;
+	/*font-size: medium;*/
+}
+
+.clue, .hide_clue{
+	display:none;
+}
+
+/*
+.hide_clue, .show_clue{
+	background-color:#cccccc;
+	padding: 0px;
+}*/
 
 .foundBy{
 	color:var(--neutral-color);
@@ -44,6 +55,11 @@ body{
 	background-color:var(--body-background);
 	/*color:var(--danger-color);*/
 	color:black;
+	margin: 20 20 20 20px;
+	/*font-family: 'Bangers', cursive;*/
+	font-family: 'Karla', sans-serif;
+	width:400px;
+
 }
 /*so that default display as changing screens is blank*/
 body > *{
@@ -51,11 +67,11 @@ body > *{
 	display:none;
 }
 
-body{
+/*body{
 	margin: 20 20 20 20px;
-	/*font-family: 'Bangers', cursive;*/
+	font-family: 'Bangers', cursive;
 	font-family: 'Karla', sans-serif;
-}
+}*/
 
 /*https://visme.co/blog/website-color-schemes/ <-- see first for colors chosen*/
 button{
@@ -156,3 +172,59 @@ h2, h3{
 	text-align:left;
 	min-width: 300px;
 }
+
+/*.player{
+	color: var(--danger-color);
+}*/
+
+/*Note: just using w3 schools demo to start. https://www.w3schools.com/howto/howto_css_tooltip.asp Player class is equiv of tooltip class*/
+
+.player {
+  color: var(--danger-color);
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted white;
+}
+
+.player .tooltiptext {
+  visibility: hidden;
+  width: 300px;
+  background-color: #cccccc;
+  color: black;
+  text-align: left;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  /*bottom: 125%;*/
+  left: 50%;
+  margin-left: 5px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.player .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: 5px;
+  /*border-width: 5px;*/
+  /*border-style: solid;*/
+  /*border-color: #555 transparent transparent transparent;*/
+}
+
+.player:hover{
+  font-weight:bold;
+  font-size: medium;
+}
+
+
+.player:hover .tooltiptext {
+  visibility: visible;
+  color:black;
+  opacity: 1;
+  font-size:small;
+  font-weight:normal;
+}
+
