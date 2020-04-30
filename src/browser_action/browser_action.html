@@ -29,7 +29,10 @@
 			<button id="search">Search</button>
 		</div>
 		<div id="search_results">
+		
 		</div>
+		<label class ="startOnly">Go to <a href="https://hangouts.google.com/start" target= "_blank">Hangouts</a> to start a new group chat for the game. Copy and paste the link to share below.</label>
+		<input class="startOnly" type="text" id="hangout">
 		<button class="joinOnly" id="joinButton">join game</button>
 		<button class="startOnly" id="create">create game</button>
 	<!-- </form> -->
@@ -37,6 +40,7 @@
 
 <div id = "gameInProgress">
 	<h3>code to play: <span id="gameCode"></span></h3>
+	<h4>hangout <a id='hangoutLink' href="">here</a> (to get and give more clues)
 	<p>Hi, <span id="yourName"></span>! In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends!</p>
 	<div id = "gameStats"></div>
 	<div id = "clues"></div>

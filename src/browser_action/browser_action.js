@@ -1,4 +1,4 @@
-var gameCode, yourName, yourSite;
+var gameCode, yourName, yourSite, hangoutLink;
 //don't run until window loaded to accurately access dom
 window.onload = function(){
 	var welcome = document.querySelector('#welcome');
@@ -9,7 +9,7 @@ window.onload = function(){
 	var joinButton = document.querySelector('#join');
 
 	//see if there's a game in progress being stored through chrome
-	chrome.storage.sync.get(['gameCode', 'name', 'site'], function(items) {
+	chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangoutLink'], function(items) {
 	    gameCode = items.gameCode;
 	    //if there is one, then make sure it actually exists in the db
 	    if (gameCode != undefined) {
@@ -21,6 +21,7 @@ window.onload = function(){
 	                    //then make the play screen
 	                    yourName = items.name;
 	                    yourSite = items.site;
+	                    hangoutLink = items.hangoutLink;
 	                    makePlayScreen();
 	                    
 	                } else {
@@ -88,13 +89,19 @@ window.onload = function(){
 	        for (var a = 0; a < joinOnlys.length; a++) {
 	            joinOnlys[a].style.display = "none";
 	        }
-	        document.querySelector('#create').style.display = "block";
+	        for (var c = 0; c < startOnlys.length; c++) {
+	            startOnlys[c].style.display = "block";
+	        }
+	        // document.querySelector('#create').style.display = "block";
 	        onetime(document.querySelector("#create"), "click", createGame);
 
 	    } else if (createOrJoin == "join") {
 	    	document.querySelector('#create').style.display = "none";
 	        for (var b = 0; b < joinOnlys.length; b++) {
 	            joinOnlys[b].style.display = "block";
+	        }
+	        for (var d = 0; d < startOnlys.length; d++) {
+	            startOnlys[d].style.display = "none";
 	        }
 	        onetime(document.querySelector("#joinButton"), "click", joinGame);
 
@@ -158,6 +165,7 @@ window.onload = function(){
 	    document.querySelector('#startOrJoin').style.display = "none";
 	    gameInProgress.style.display = "block";
 	    console.log(yourName);
+	    document.querySelector('#hangoutLink').href = hangoutLink;
 	    document.querySelector('#gameCode').innerHTML = gameCode;
 	    document.querySelector('#yourName').innerHTML = yourName;
 	    document.querySelector('#hidingPlace').href = yourSite;
@@ -529,12 +537,13 @@ window.onload = function(){
 	        el.classList.remove("invalid");
 	    });
 
-	    var name, site, gif, code, joinCode, clue;
+	    var name, site, gif, code, joinCode, clue, hangout;
 	    name = document.querySelector('#name').value.trim();
 	    site = document.querySelector('#site').value.trim();
 	    joinCode = document.querySelector('#joinCode').value.trim();
 	    clue = document.querySelector('#clue').value.trim();
-	    console.log(joinCode);
+	    hangout = document.querySelector('#hangout').value.trim();
+	    // console.log(joinCode);
 	    try {
 	        gif = document.querySelector('#selected_gif').src;
 	    } catch {
@@ -546,7 +555,8 @@ window.onload = function(){
 	            code = generateUID(); //for new game
 	            db.collection("games").doc(code).set({
 	                    code: code,
-	                    time_created: Date.now()
+	                    time_created: Date.now(),
+	                    hangout: hangout
 
 	                })
 	                .then(function() {
@@ -562,7 +572,7 @@ window.onload = function(){
 	                })
 	                .then(function() { //I think this is right? waiting until it was successfully added to db before I then move onto the next screen
 	                    alert("Copy and share the following game code with your friends: " + code);
-	                    setChromeStorage(code, name, site);
+	                    setChromeStorage(code, name, site, hangout);
 	             
 	                }).catch(function(error) {
 	                    console.log(error);
@@ -596,10 +606,14 @@ window.onload = function(){
 	                                    foundBy: []
 	                                })
 	                                .then(function() {
-	                                	setChromeStorage(joinCode, name, site);
+	                                	db.collection("games").doc(joinCode).get().then(function(doc){
+	                                		hangoutLink = doc.data['hangout'];
+	                                	}).then(function(){
+	                                	setChromeStorage(joinCode, name, site, hangoutLink);
 	                                }).catch(function(error) {
 	                                    console.log(error);
 	                                });
+	                            });
 	                        }); //ends the then function after we checked if the doc exists
 
 
@@ -622,7 +636,9 @@ window.onload = function(){
 	    }
 	}
 
-	function setChromeStorage(code, name, site){
+	function setChromeStorage(code, name, site, hangoutLink){
+		//doesnt make sense, but im putting hangout link here...
+		hangoutLink = hangoutLink;
 		gameCode = code;
         yourName = name;
         yourSite = site;
@@ -632,7 +648,8 @@ window.onload = function(){
         chrome.storage.sync.set({
             gameCode: gameCode,
             name: yourName,
-            site: yourSite
+            site: yourSite,
+            hangoutLink: hangoutLink
         });
         makePlayScreen();
 

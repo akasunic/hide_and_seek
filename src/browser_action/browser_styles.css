@@ -148,12 +148,12 @@ label{
 input{
 	margin:0px 10px 10px 10px;
 	/*display:block;*/
-	width:300px;
+	width:370px;
 
 }
 
 #gif_search{
-	width: 240px;
+	width: 300px;
 }
 
 #newGameError, #search_results{
