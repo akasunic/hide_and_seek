@@ -140,6 +140,10 @@ window.onload = function(){
 	function endGame() {
 	    var confirmResults = confirm("Are you sure? This will end the game for ALL players!!");
 	    if (confirmResults == true) {
+	    	db.collection("games").doc(gameCode).set({
+	    		inPlay: false},
+	    		{merge:true
+	    	});
 	        db.collection("games").doc(gameCode).delete().catch(function(error){console.log(error)});
 	        chrome.storage.sync.clear();
 	        resetGameInputs();
@@ -372,7 +376,12 @@ window.onload = function(){
 	            });
 	            console.log('toFind:', toFind.length);
 	            if(toFind.length==0){
-	            	statsDiv.innerHTML += "<h3>You found all the players!</h3>";
+	            	if(results.length >1){
+	            		statsDiv.innerHTML += "<h3>You found all the players!</h3>";
+	            	}
+	            	else{
+	            		statsDiv.innerHTML += "<h3>There are no players to find yet.</h3>";
+	            	}
 	          	
 	            }
 	            else{
