@@ -706,7 +706,7 @@ window.onload = function(){
 	            code = generateUID(); //for new game
 	            db.collection("games").doc(code).set({
 	                    code: code,
-	                    time_created: Date.now(),
+	                    time_created: firebase.firestore.Timestamp.fromDate(new Date()),
 	                    hangout: hangout
 
 	                })
