@@ -172,11 +172,15 @@ input{
 
 }
 
-#gif_search, #newClue{
+#gif_search{
+	width:310px;
+}
+
+#newClue{
 	width: 270px;
 }
 
-#newGameError, #search_results{
+#newGameError{
 	margin:10px;
 }
 
@@ -186,11 +190,19 @@ input{
 
 h2, h3, h5, h4{
 	font-family: 'Rubik', sans-serif;
-	color:var(--danger-color);
+	/*color:var(--danger-color);*/
 	/*color:var(--splash-color);*/
 	margin:10px;
 	text-align:left;
 	min-width: 300px;
+}
+
+h3 {
+	color:var(--neutral-color);
+}
+
+h2, h5, h4, #gameCode{
+	color:var(--danger-color);
 }
 
 /*.player{

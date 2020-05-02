@@ -213,6 +213,7 @@ window.onload = function(){
 	    	document.querySelector('#hangoutP').style.display = "none";
 	    }
 	    document.querySelector('#yourClue').innerHTML = yourClue;
+	    document.querySelector('#newClue').value = yourClue;
 	    document.querySelector('#gameCode').innerHTML = gameCode;
 	    document.querySelector('#yourName').innerHTML = yourName;
 	    document.querySelector('#hidingPlace').href = yourSite;
@@ -792,7 +793,7 @@ window.onload = function(){
 
 	        top_gifs = response_objects["results"];
 
-	        searchResults.innerHTML = '<p style="font-weight:bold">Click a GIF below to select.</p>';
+	        searchResults.innerHTML = '<h4 style="font-weight:bold">Click a GIF below to select.</h4>';
 
 	        // searchResults 
 	        // load the GIFs --
@@ -805,7 +806,7 @@ window.onload = function(){
 		            img.addEventListener('click', function() {
 		            	console.log('registering image click');
 		            	console.log(img.src);
-		                searchResults.querySelector('p').innerHTML = "You've selected this GIF:";
+		                searchResults.querySelector('h4').innerHTML = "You've selected this GIF:";
 		                this.removeAttribute('class', 'unselected');
 		                this.id = "selected_gif";
 		                Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
@@ -815,11 +816,11 @@ window.onload = function(){
 		        }
 		    }
 		    else{
-		    	searchResults.innerHTML = '<p style="font-weight:bold; color:var(--danger-color);">No GIFs match your search terms.</p>';
+		    	searchResults.innerHTML = '<h4>No GIFs match your search terms.</h4>';
 		    }	
 	    } catch (err) {
 	        //if response_objects is undefined because there are no results
-	        searchResults.innerHTML = '<p style="font-weight:bold; color:var(--danger-color);">No GIFs match your search terms.</p>';
+	        searchResults.innerHTML = '<h4>No GIFs match your search terms.</h4>';
 
 	    }
 
