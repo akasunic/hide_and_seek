@@ -201,7 +201,7 @@ h3 {
 	color:var(--neutral-color);
 }
 
-h2, h5, h4, #gameCode{
+h2, h5, h4, #gameCode, #countChars{
 	color:var(--danger-color);
 }
 
