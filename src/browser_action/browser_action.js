@@ -206,6 +206,7 @@ window.onload = function(){
 
 	/*shows the correct screen for a game in progress*/
 	function makePlayScreen() {
+		countClue();
 	    welcome.style.display = "none";
 	    document.querySelector('#startOrJoin').style.display = "none";
 	    gameInProgress.style.display = "block";
@@ -235,17 +236,27 @@ window.onload = function(){
 
 	    if (updateClueEvent == false){
 	    	document.querySelector("#updateClue").addEventListener('click', function(){	
+	    		document.querySelector('#clueUpdateError').innerHTML = "";
+	    		document.querySelector('#newClue').classList.remove('invalid');
 		    	var newClue = document.querySelector('#newClue').value;
 	    		document.querySelector('#yourClue').innerHTML = newClue;
-	    		db.collection("games").doc(gameCode)
-	    			.collection("players").doc(yourName).set({
-	    				clue: newClue,
-	    			}, {merge:true});
-	    		chrome.storage.sync.set({
-	            	clue: newClue
-	        	});
-	        	document.querySelector('#clueDialogue').style.display = "none";
-	        	alert('Your clue has been changed to ' + newClue + ".");
+	    		if (validateClue(newClue, '#newClue')!=true){
+	    			document.querySelector('#clueUpdateError').innerHTML = validateClue(newClue, '#newClue');
+	    		}
+	    		else{
+	    			document.querySelector('#clueUpdateError').value = "";
+	    			db.collection("games").doc(gameCode)
+		    			.collection("players").doc(yourName).set({
+		    				clue: newClue,
+		    			}, {merge:true});
+		    		chrome.storage.sync.set({
+		            	clue: newClue
+		        	});
+		        	document.querySelector('#clueDialogue').style.display = "none";
+		        	alert('Your clue has been changed to ' + newClue + ".");
+
+		    	}
+
 	        });
 	    }
 	    if (leaveEvent == false){
@@ -587,55 +598,41 @@ window.onload = function(){
 
 	//CHANGE SO WORKS FOR CLUE ALSO...
 	function countClue(){
-
 		if (clueCountKeyEvent == false){
-	    	document.querySelector("#clue").addEventListener("keyup", function(event){
-	    		var numChars = document.querySelector("#clue").value.length;
-	    		var threshold = maxClueChars - thresholdClueChars;
-
-				if (numChars>threshold && numChars<maxClueChars){
-					document.querySelector('#countChars').innerHTML = " Careful, only " + (maxClueChars-numChars).toString() + " characters left.";
-				}
-				else if (numChars == maxClueChars){
-					document.querySelector('#countChars').innerHTML = " Max characters reached.";
-				}
-
-				else if (numChars > maxClueChars){
-					document.querySelector('#countChars').innerHTML = " " + (numChars-maxClueChars).toString() + " too many characters in your clue.";
-				}
-
-				else{
-					document.querySelector('#countChars').innerHTML = "";
-				}
-			});
+			countClueHelper('#clue', '#countChars'); 
+			countClueHelper('#newClue', '#countCharsUpdate');
 			clueCountKeyEvent = true; 
-
 	    }
 	}
 
+	function countClueHelper(clueHash, countCharsHash){
+		document.querySelector(clueHash).addEventListener("keyup", function(event){
+			console.log('testing');
+			var numChars = document.querySelector(clueHash).value.length;
+			var threshold = maxClueChars - thresholdClueChars;
 
+			if (numChars>threshold && numChars<maxClueChars){
+				document.querySelector(countCharsHash).innerHTML = " Careful, only " + (maxClueChars-numChars).toString() + " characters left.";
+			}
+			else if (numChars == maxClueChars){
+				document.querySelector(countCharsHash).innerHTML = " Max characters reached.";
+			}
 
+			else if (numChars > maxClueChars){
+				document.querySelector(countCharsHash).innerHTML = " " + (numChars-maxClueChars).toString() + " too many characters in your clue.";
+			}
 
-// var content;
-// $('textarea').on('keyup', function(){
-//     var letters = $(this).val().length;
-//     $('#myLetterCount').text(301-letters+" letters left");
-//     // limit message
-//     if(letters>=301){
-//         $(this).val(content);
-//         alert('no more than 300 letters, please!');
-//     } else {    
-//         content = $(this).val();
-//     }
-// });
+			else{
+				document.querySelector(countCharsHash).innerHTML = "";
+			}
+		});
 
+	}
 
-// 	}
-
-	///ADD IN USE CASE??? OR JUST HASHTAG!!
-	function validateClue(clue){
+	///includes hashtag so can use on update page as well
+	function validateClue(clue, hashTag){
 		if(clue == undefined || clue == "" || typeof clue != "string"){
-			document.querySelector('#clue').setAttribute('class', 'invalid');
+			document.querySelector(hashTag).setAttribute('class', 'invalid');
 			return "You must provide at least one clue.";
 		}
 		else if(clue.length > maxClueChars){
@@ -657,8 +654,8 @@ window.onload = function(){
 	    } else if (isURL(site) == false) { //site should be a real site
 	        document.querySelector('#site').setAttribute('class', 'invalid');
 	        return "You must enter a valid website as your hiding place.";
-	    } else if (validateClue(clue) != true) { //should have a clue, and clue should not be too long
-	        return validateClue(clue);
+	    } else if (validateClue(clue, '#clue') != true) { //should have a clue, and clue should not be too long
+	        return validateClue(clue, '#clue');
 	    } else if (isGIF(gif) == false) { //gif should be a displayable gif, not sure how to test
 	        return "You must select a GIF.";
 	        // if want to be more specifc, could change tostarts with https://media.tenor.com/
