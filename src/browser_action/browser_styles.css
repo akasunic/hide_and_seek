@@ -22,7 +22,27 @@
 	color:var(--danger-color);
 }
 
+#editClue, a{
+	cursor: pointer;
+	color:var(--neutral-color);
+	text-decoration:underline;
+/*	display:inline-block;
+	padding:2px;*/
+}
+#updateClue{
+	background-color:var(--go-color);
+	display:inline-block;
+	padding:2px;
 
+
+}
+
+#clueDialogue{
+	background-color:var(--neutral-color);
+	color:white;
+	padding:5px;
+	border-radius:10px;
+}
 
 
 .found_player{
@@ -102,12 +122,12 @@ button{
 	background-color:var(--danger-color);
 }
 
-#search_bar{
+#search_bar, #newClue{
 	white-space: nowrap;
 }
 
 
-#search{
+#search, #updateClue{
 	margin:0px;
 	padding:5px;
 	margin-right:10px;
@@ -152,8 +172,8 @@ input{
 
 }
 
-#gif_search{
-	width: 300px;
+#gif_search, #newClue{
+	width: 270px;
 }
 
 #newGameError, #search_results{

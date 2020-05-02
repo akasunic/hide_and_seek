@@ -42,12 +42,21 @@
 <div id = "gameInProgress">
 	<h3>code to play: <span id="gameCode"></span></h3>
 
-	<p>Hi, <span id="yourName"></span>! In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends!</p>
-	<p id="hangoutP">Need help? Scroll over players you haven't found yet for a hint, or visit <a id='hangoutLink' href="" target= "_blank">the group hangout</a> to talk with other players. </p>
+	<p>Hi, <span id="yourName"></span>! In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends! Need help? Scroll over players you haven't found yet for a hint. Change your clue <span id="editClue">here.</span></p>
+	<p id="hangoutP">Visit <a id='hangoutLink' href="" target= "_blank">the group hangout</a> to talk with other players. </p>
+	
+	<div id = "clueDialogue" style = "display:none;">
+		<p style="font-weight:bold;">your current clue: <span id="yourClue"></span></p>
+		<label>new clue:</label>
+		<input id ="newClue">
+		<button id="updateClue">update clue</button>
+	</div>
 	<div id = "gameStats"></div>
 	<div id = "clues"></div>
 	<button id="leaveGame">leave game</button>
 	<button id="quitGame">end game for all</button>
+
+	
 
 
 </div>

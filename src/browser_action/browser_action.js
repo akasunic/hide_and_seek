@@ -1,4 +1,4 @@
-var gameCode, yourName, yourSite, hangoutLink;
+var gameCode, yourName, yourSite, hangoutLink, yourClue;
 //event listener booleans... false indicates does not have event listener attached currently
 var showStartEvent = false;
 var showJoinEvent = false;
@@ -8,7 +8,9 @@ var searchEvent = false;
 var leaveEvent =false;
 var endEvent = false;
 var keyUpEvent = false;
-var maxPlayers = 2;//change this later if you want
+var editClueEvent = false;
+var updateClueEvent = false;
+var maxPlayers = 20;//change this later if you want
 //don't run until window loaded to accurately access dom
 window.onload = function(){
 	var welcome = document.querySelector('#welcome');
@@ -19,7 +21,7 @@ window.onload = function(){
 	var joinButton = document.querySelector('#join');
 
 	//see if there's a game in progress being stored through chrome
-	chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangout'], function(items) {
+	chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangout', 'clue'], function(items) {
 	    gameCode = items.gameCode;
 	    //if there is one, then make sure it actually exists in the db
 	    if (gameCode != undefined) {
@@ -31,6 +33,7 @@ window.onload = function(){
 	                    //then make the play screen
 	                    yourName = items.name;
 	                    yourSite = items.site;
+	                    yourClue = items.clue;
 	                    hangoutLink = items.hangout;
 	                    makePlayScreen();
 	                    
@@ -209,10 +212,35 @@ window.onload = function(){
 	    else{
 	    	document.querySelector('#hangoutP').style.display = "none";
 	    }
-	    
+	    document.querySelector('#yourClue').innerHTML = yourClue;
 	    document.querySelector('#gameCode').innerHTML = gameCode;
 	    document.querySelector('#yourName').innerHTML = yourName;
 	    document.querySelector('#hidingPlace').href = yourSite;
+
+	    if (editClueEvent == false){
+	    	document.querySelector("#editClue").addEventListener('click', function(){	
+
+	    		document.querySelector('#clueDialogue').style.display = "block";
+
+	    		
+	    	});
+	    }
+
+	    if (updateClueEvent == false){
+	    	document.querySelector("#updateClue").addEventListener('click', function(){	
+		    	var newClue = document.querySelector('#newClue').value;
+	    		document.querySelector('#yourClue').innerHTML = newClue;
+	    		db.collection("games").doc(gameCode)
+	    			.collection("players").doc(yourName).set({
+	    				clue: newClue,
+	    			}, {merge:true});
+	    		chrome.storage.sync.set({
+	            	clue: newClue
+	        	});
+	        	document.querySelector('#clueDialogue').style.display = "none";
+	        	alert('Your clue has been changed to ' + newClue + ".");
+	        });
+	    }
 	    if (leaveEvent == false){
 	    	document.querySelector('#leaveGame').addEventListener('click', leaveGame);
 	    	leaveEvent = true;
@@ -631,7 +659,7 @@ window.onload = function(){
 	                })
 	                .then(function() { //I think this is right? waiting until it was successfully added to db before I then move onto the next screen
 	                    alert("Copy and share the following game code with your friends: " + code);
-	                    setChromeStorage(code, name, site, hangout);
+	                    setChromeStorage(code, name, site, hangout, clue);
 	             
 	                }).catch(function(error) {
 	                    console.log(error);
@@ -682,11 +710,12 @@ window.onload = function(){
 	                                		hangoutLink = doc.data()['hangout'];
 	                                		console.log("HANGOUT", hangoutLink);
 	                                	}).then(function(){
-	                                	setChromeStorage(joinCode, name, site, hangoutLink);
+	                                	setChromeStorage(joinCode, name, site, hangoutLink, clue);
 	                                })
 	                            })
 	                                .catch(function(error) {
 	                                    console.log(error);
+	                                    document.querySelector('#newGameError').innerHTML = "There was an error joining this game. If this was unexpected, please contact the developer for support.";
 	                                });
 	                        }); //ends the then function after we checked if the doc exists
 
@@ -711,12 +740,13 @@ window.onload = function(){
 	    }
 	}
 
-	function setChromeStorage(code, name, site, hangoutLink){
+	function setChromeStorage(code, name, site, hangoutLink, clue){
 		//doesnt make sense, but im putting hangout link here...
 		hangoutLink = hangoutLink;
 		gameCode = code;
         yourName = name;
         yourSite = site;
+        yourClue = clue;
         if (yourSite.substring(0, 4) != "http") {
             yourSite = "http://" + site;
         }
@@ -724,7 +754,8 @@ window.onload = function(){
             gameCode: gameCode,
             name: yourName,
             site: yourSite,
-            hangout: hangoutLink
+            hangout: hangoutLink, 
+            clue: yourClue
         });
         makePlayScreen();
 
