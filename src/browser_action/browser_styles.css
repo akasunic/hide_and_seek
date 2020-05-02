@@ -164,7 +164,7 @@ input{
 	margin:10px;
 }
 
-h2, h3{
+h2, h3, h5, h4{
 	font-family: 'Rubik', sans-serif;
 	color:var(--danger-color);
 	/*color:var(--splash-color);*/

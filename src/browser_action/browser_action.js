@@ -1,4 +1,14 @@
 var gameCode, yourName, yourSite, hangoutLink;
+//event listener booleans... false indicates does not have event listener attached currently
+var showStartEvent = false;
+var showJoinEvent = false;
+var joinEvent = false;
+var createEvent =false;
+var searchEvent = false;
+var leaveEvent =false;
+var endEvent = false;
+var keyUpEvent = false;
+var maxPlayers = 2;//change this later if you want
 //don't run until window loaded to accurately access dom
 window.onload = function(){
 	var welcome = document.querySelector('#welcome');
@@ -49,16 +59,24 @@ window.onload = function(){
 
 
 	function makeWelcomeScreen() {
+		resetGameInputs();
 	    welcome.style.display = "block";
 	    document.querySelector('#startOrJoin').style.display = "none";
 	    gameInProgress.style.display = "none";
-	    startButton.addEventListener('click', function() {
-	        makeNewGameScreen('create')
-	    });
-	    joinButton.addEventListener('click', function() {
-	        makeNewGameScreen('join')
-	    });
+	    if (showStartEvent == false){
+	    	startButton.addEventListener('click', function() {
+	        makeNewGameScreen('create');
+	    	});
+	    	showStartEvent = true;
 
+	    }
+	    
+	    if (showJoinEvent == false){
+	    	joinButton.addEventListener('click', function() {
+	        makeNewGameScreen('join');
+	    	});
+	    	showJoinEvent = true;
+	    }
 	}
 
 	
@@ -93,7 +111,12 @@ window.onload = function(){
 	            startOnlys[c].style.display = "block";
 	        }
 	        // document.querySelector('#create').style.display = "block";
-	        onetime(document.querySelector("#create"), "click", createGame);
+
+	        if (createEvent == false){
+	        	document.querySelector('#create').addEventListener('click', createGame);
+	        	createEvent = true;
+	        }
+	        // onetime(document.querySelector("#create"), "click", createGame);
 
 	    } else if (createOrJoin == "join") {
 	    	document.querySelector('#create').style.display = "none";
@@ -103,25 +126,38 @@ window.onload = function(){
 	        for (var d = 0; d < startOnlys.length; d++) {
 	            startOnlys[d].style.display = "none";
 	        }
-	        onetime(document.querySelector("#joinButton"), "click", joinGame);
+	        if (joinEvent == false){
+	        	document.querySelector('#joinButton').addEventListener('click', joinGame);
+	        	joinEvent = true;
+	        }
+	        // onetime(document.querySelector("#joinButton"), "click", joinGame);
 
 	    }
 
 	    gameInProgress.style.display = "none";
 
 	    //execute search button click if user presses enter
-		document.querySelector("#gif_search").addEventListener("keyup", function(event){
-			if (event.keyCode === 13){
-				document.querySelector('#search').click();
-			}
-		});
+	    if (keyUpEvent == false){
+	    	document.querySelector("#gif_search").addEventListener("keyup", function(event){
+				if (event.keyCode === 13){
+					document.querySelector('#search').click();
+				}
+			});
+			keyUpEvent = true; 
 
-	    document.querySelector('#search').addEventListener('click', function() {
-	        implement_search_gif()
-	    });
-	}
+	    }
+		
+	    if (searchEvent == false){
+		    document.querySelector('#search').addEventListener('click', function() {
+		        implement_search_gif()
+		    });
+		    searchEvent = true;
+	    }
+	    
+	} 
 
 	function resetGameInputs(){
+
 		gameCode = undefined; yourName = undefined, yourSite = undefined;
 	    var inputs = document.querySelectorAll('input');
 	    [].forEach.call(inputs, function(el){
@@ -132,6 +168,7 @@ window.onload = function(){
 	    statsDiv.innerHTML = "";
 	    var cluesDiv = document.querySelector('#clues');
 	    cluesDiv.innerHTML = "";
+
 	}
 
 	/*function to end game for all players
@@ -140,13 +177,8 @@ window.onload = function(){
 	function endGame() {
 	    var confirmResults = confirm("Are you sure? This will end the game for ALL players!!");
 	    if (confirmResults == true) {
-	    	db.collection("games").doc(gameCode).set({
-	    		inPlay: false},
-	    		{merge:true
-	    	});
 	        db.collection("games").doc(gameCode).delete().catch(function(error){console.log(error)});
 	        chrome.storage.sync.clear();
-	        resetGameInputs();
 	        makeWelcomeScreen();
 	    }
 	}
@@ -158,7 +190,7 @@ window.onload = function(){
 	        .collection("players").doc(yourName).delete().catch(function(error){console.log(error)});
 
 	    chrome.storage.sync.clear();
-	    resetGameInputs();
+	    // resetGameInputs();
 	    makeWelcomeScreen();
 	}
 
@@ -168,17 +200,36 @@ window.onload = function(){
 	    welcome.style.display = "none";
 	    document.querySelector('#startOrJoin').style.display = "none";
 	    gameInProgress.style.display = "block";
-	    console.log(yourName);
 	    console.log(hangoutLink);
-	    document.querySelector('#hangoutLink').href = hangoutLink;
+
+	    // CHECK HANGOUT LINK HERE!!! IF NOT VALID< DON'T SHOW!!!
+	    if(hangoutLink!= undefined && isHangoutValid(hangoutLink)){
+	    	document.querySelector('#hangoutLink').href = hangoutLink;
+	    }
+	    else{
+	    	document.querySelector('#hangoutP').style.display = "none";
+	    }
+	    
 	    document.querySelector('#gameCode').innerHTML = gameCode;
 	    document.querySelector('#yourName').innerHTML = yourName;
 	    document.querySelector('#hidingPlace').href = yourSite;
-	    document.querySelector('#leaveGame').addEventListener('click', leaveGame);
-	    document.querySelector('#quitGame').addEventListener('click', endGame);
+	    if (leaveEvent == false){
+	    	document.querySelector('#leaveGame').addEventListener('click', leaveGame);
+	    	leaveEvent = true;
+	    }
+	    
+	    if(endEvent == false){
+	    	document.querySelector('#quitGame').addEventListener('click', endGame);
+	    }
 	    searchForPlayers();
 	}
 
+	function isHangoutValid(hangoutLink){
+		if(hangoutLink.includes("hangouts.google.com") && isURL(hangoutLink)){
+			return true;
+		}
+		return false;
+	}
 
 
 	/*used in searchForPlayers to determine whether the url of current tab and players' hiding places match*/
@@ -360,10 +411,10 @@ window.onload = function(){
 	                        p.appendChild(foundBy_span);
 
 	                    }
-	                    if (player_span.classList.contains('found_player')==false){
-	              			toFind.push(player);
-	              		}
-
+	                }
+                    if (player_span.classList.contains('found_player')==false){
+              			toFind.push(player);
+	         
 	                }
 	                var playerDiv = document.createElement('div');
 	                playerDiv.id = player;
@@ -380,7 +431,7 @@ window.onload = function(){
 	            		statsDiv.innerHTML += "<h3>You found all the players!</h3>";
 	            	}
 	            	else{
-	            		statsDiv.innerHTML += "<h3>There are no players to find yet.</h3>";
+	            		statsDiv.innerHTML += "<h3>There are no other players to find yet.</h3>";
 	            	}
 	          	
 	            }
@@ -511,7 +562,7 @@ window.onload = function(){
 	        document.querySelector('#site').setAttribute('class', 'invalid');
 	        return "You must enter a valid website as your hiding place.";
 	    } else if (clue == '') { //should have a clue
-	        document.querySelector('#site').setAttribute('class', 'invalid');
+	        document.querySelector('#clue').setAttribute('class', 'invalid');
 	        return "You must give a clue.";
 	    } else if (isGIF(gif) == false) { //gif should be a displayable gif, not sure how to test
 	        return "You must select a GIF.";
@@ -554,12 +605,10 @@ window.onload = function(){
 	    clue = document.querySelector('#clue').value.trim();
 	    hangout = document.querySelector('#hangout').value.trim();
 	    // console.log(joinCode);
-	    try {
-	        gif = document.querySelector('#selected_gif').src;
-	    } catch {
-	        gif = 'no selection';
+	    var gif = document.querySelector('#selected_gif');
+	    if (gif != undefined){
+	    	gif = gif.src;
 	    }
-
 	    if (validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue) == true) { //valid, so go ahead and create game
 	        if (joinOrCreate == "create") {
 	            code = generateUID(); //for new game
@@ -600,7 +649,20 @@ window.onload = function(){
 	                    document.querySelector('#joinCode').setAttribute('class', 'invalid');
 	                    onetime(document.querySelector("#joinButton"), "click", joinGame);
 	                } else {
-	                    db.collection("games").doc(joinCode)
+
+	                	//make sure there aren't too many players in the game already, using max number of players. currently set to 20
+	                	//make sure it matches with firestore security rules
+
+	                	db.collection('games').doc(joinCode).collection("players").get().then(snap => {
+						   var size = snap.size;
+						   if (size >= maxPlayers){
+						   	alert("I'm sorry, virtual hide-and-go-seek only allows a maximum of " + maxPlayers + " players per game.");
+						  
+	        				// resetGameInputs();
+						   	makeWelcomeScreen();
+						   }
+						   else{ //if not exceeding max players
+						   	db.collection("games").doc(joinCode)
 	                        .collection("players").doc(name).get().then(function(doc) {
 	                            if (doc.exists) {
 	                                name = name + "_again";
@@ -628,7 +690,8 @@ window.onload = function(){
 	                                });
 	                        }); //ends the then function after we checked if the doc exists
 
-
+						   }//ends else clause for if not exceeding max players
+						});
 	                }
 	            }); //ends safeJoinCode part
 
@@ -639,12 +702,12 @@ window.onload = function(){
 	    } //ends game validaiton code
 	    else { //if not valid, stay on same screen
 	        document.querySelector('#newGameError').innerHTML = validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue);
-	        if (joinOrCreate == "create") {
-	            onetime(document.querySelector("#create"), "click", createGame);
-	        } else if (joinOrCreate == "join") {
-	            onetime(document.querySelector("#joinButton"), "click", joinGame);
+	        // if (joinOrCreate == "create") {
+	        //     onetime(document.querySelector("#create"), "click", createGame);
+	        // } else if (joinOrCreate == "join") {
+	        //     onetime(document.querySelector("#joinButton"), "click", joinGame);
 
-	        }
+	        // }
 	    }
 	}
 
@@ -702,20 +765,27 @@ window.onload = function(){
 
 	        // searchResults 
 	        // load the GIFs --
-	        for (var i = 0; i < top_gifs.length; i++) {
-	            var img = document.createElement('img');
-	            img.src = top_gifs[i]["media"][0]["tinygif"]["url"];
-	            img.setAttribute('class', 'unselected');
-	            searchResults.appendChild(img);
-	            img.addEventListener('click', function() {
-	                searchResults.querySelector('p').innerHTML = "You've selected this GIF:";
-	                this.removeAttribute('class', 'unselected');
-	                this.id = "selected_gif";
-	                Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
-	                    image.style.display = 'none';
-	                });
-	            });
-	        }
+	        if (top_gifs.length>0){
+		        for (var i = 0; i < top_gifs.length; i++) {
+		            var img = document.createElement('img');
+		            img.src = top_gifs[i]["media"][0]["tinygif"]["url"];
+		            img.setAttribute('class', 'unselected');
+		            searchResults.appendChild(img);
+		            img.addEventListener('click', function() {
+		            	console.log('registering image click');
+		            	console.log(img.src);
+		                searchResults.querySelector('p').innerHTML = "You've selected this GIF:";
+		                this.removeAttribute('class', 'unselected');
+		                this.id = "selected_gif";
+		                Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
+		                    image.style.display = 'none';
+		                });
+		            });
+		        }
+		    }
+		    else{
+		    	searchResults.innerHTML = '<p style="font-weight:bold; color:var(--danger-color);">No GIFs match your search terms.</p>';
+		    }	
 	    } catch (err) {
 	        //if response_objects is undefined because there are no results
 	        searchResults.innerHTML = '<p style="font-weight:bold; color:var(--danger-color);">No GIFs match your search terms.</p>';

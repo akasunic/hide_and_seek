@@ -14,8 +14,8 @@
 <div id="startOrJoin">
 	<!-- <form> -->
 		<div id="newGameError" class="error"></div>
-		<h2 class ="startOnly">Before you start this form, go to <a href="https://hangouts.google.com/start" target= "_blank">Hangouts</a> to start a new group chat for the game. Copy and paste the link to share below.</h2>
-		<input class="startOnly" type="text" id="hangout">
+		<h4 style="color:black" class ="startOnly"><span style="color:grey">(optional)</span> Before you start this form, go to <a href="https://hangouts.google.com/start" target= "_blank">Hangouts</a> to start a new group chat for the game. Copy and paste the link to share below.</h4>
+		<input class="startOnly" type="text" id="hangout" placeholder="Optional Google Hangout link">
 		<label class="joinOnly">Game code:</label>
 		<input class="joinOnly" id="joinCode" type="text">
 		<label>Your name</label>
@@ -43,7 +43,7 @@
 	<h3>code to play: <span id="gameCode"></span></h3>
 
 	<p>Hi, <span id="yourName"></span>! In case you forgot, you are hiding <a href='' id="hidingPlace" target="_blank">here</a>. Find your friends!</p>
-	<p>Need help? Scroll over players you haven't found yet for a hint, or visit <a id='hangoutLink' href="" target= "_blank">the group hangout</a> to talk with other players. </p>
+	<p id="hangoutP">Need help? Scroll over players you haven't found yet for a hint, or visit <a id='hangoutLink' href="" target= "_blank">the group hangout</a> to talk with other players. </p>
 	<div id = "gameStats"></div>
 	<div id = "clues"></div>
 	<button id="leaveGame">leave game</button>
