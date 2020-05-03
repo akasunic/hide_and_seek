@@ -16,12 +16,34 @@ var thresholdClueChars = 100;
 var maxPlayers = 20;//change this later if you want
 //don't run until window loaded to accurately access dom
 window.onload = function(){
+
 	var welcome = document.querySelector('#welcome');
 
 	//to avoid rewriting document.querySelector
 	var gameInProgress = document.querySelector('#gameInProgress');
 	var startButton = document.querySelector('#start');
 	var joinButton = document.querySelector('#join');
+
+
+
+	//Load and define modal
+
+	var modal = document.getElementById("myModal");
+
+	// Get the <span> element that closes the modal
+	var span = document.getElementsByClassName("close")[0];
+
+	// When the user clicks on <span> (x), close the modal
+	span.onclick = function() {
+	  modal.style.display = "none";
+	}
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+	  if (event.target == modal) {
+	    modal.style.display = "none";
+	  }
+	}
 
 	//see if there's a game in progress being stored through chrome
 	chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangout', 'clue'], function(items) {
@@ -43,14 +65,19 @@ window.onload = function(){
 	                } else {
 	                    //if you have a game code stored, but it doesn't exist in the database, clear storage, and reload the welcome screen 
 	                    chrome.storage.sync.clear();
-	                    alert("Sorry, the game you were playing no longer exists.");
+	                    document.querySelector('#modalText').innerHTML = "Sorry, the game you were playing no longer exists.";
+	                    modal.style.display = "block";
+	                    // alert("Sorry, the game you were playing no longer exists.");
+	                    //keep as an alert or modal
 	                    makeWelcomeScreen();
 
 	                }
 	            }).catch(function(error) { 
 	                console.log(error);
 	                chrome.storage.sync.clear();
-	                alert("Sorry, the game you were playing no longer exists.");
+	                document.querySelector('#modalText').innerHTML = "Sorry, the game you were playing no longer exists.";
+	                modal.style.display = "block";
+	                //keep as an alert or modal
 	                makeWelcomeScreen();
 	            });
 	    } else { //set up a new game if gameCode is undefined
@@ -65,7 +92,7 @@ window.onload = function(){
 
 
 	function makeWelcomeScreen() {
-		resetGameInputs();
+		// resetGameInputs();
 	    welcome.style.display = "block";
 	    document.querySelector('#startOrJoin').style.display = "none";
 	    gameInProgress.style.display = "none";
@@ -167,7 +194,7 @@ window.onload = function(){
 
 	function resetGameInputs(){
 
-		gameCode = undefined; yourName = undefined, yourSite = undefined;
+		// gameCode = undefined; yourName = undefined, yourSite = undefined;
 	    var inputs = document.querySelectorAll('input');
 	    [].forEach.call(inputs, function(el){
 	    	el.value = '';
@@ -185,6 +212,7 @@ window.onload = function(){
 	 */
 	function endGame() {
 	    var confirmResults = confirm("Are you sure? This will end the game for ALL players!!");
+	    //CHANGE TO A MODAL!!!
 	    if (confirmResults == true) {
 	        db.collection("games").doc(gameCode).delete().catch(function(error){console.log(error)});
 	        chrome.storage.sync.clear();
@@ -194,7 +222,10 @@ window.onload = function(){
 
 	/*delete this player from the game*/
 	function leaveGame() {
-	    alert("Sorry to see you go, " + yourName + "! You can always re-enter while the game is still in play.");
+	    // alert("Sorry to see you go, " + yourName + "! You can always re-enter while the game is still in play.");
+	    //keep as alert or modal
+	    document.querySelector('#modalText').innerHTML = "Sorry to see you go, " + yourName + "! You can always re-enter while the game is still in play.";
+	    modal.style.display = "block";
 	    db.collection("games").doc(gameCode)
 	        .collection("players").doc(yourName).delete().catch(function(error){console.log(error)});
 
@@ -206,6 +237,7 @@ window.onload = function(){
 
 	/*shows the correct screen for a game in progress*/
 	function makePlayScreen() {
+		resetGameInputs();
 		countClue();
 	    welcome.style.display = "none";
 	    document.querySelector('#startOrJoin').style.display = "none";
@@ -254,6 +286,7 @@ window.onload = function(){
 		        	});
 		        	document.querySelector('#clueDialogue').style.display = "none";
 		        	alert('Your clue has been changed to ' + newClue + ".");
+		        	//change the above to a fadeout text, "clue successfully updated"
 
 		    	}
 
@@ -339,38 +372,7 @@ window.onload = function(){
 				parent.querySelector('.clue').style.display = 'block';
 
 			}
-
-			// alert(e.target);
-			// console.log("current: ", e.currentTarget);
-			// if (e.target && e.target.matches(".hide_clue")) {
-			// 	console.log(e.target);
-			// 	alert('hide button clicked');
-   // // 			 clueP.style.display = 'none';
-			// // showClue.style.display = 'block';
-			// // hideClue.style.display = 'none';
-			// }
-
-			// else if (e.target && e.target.matches("button.show_clue")){
-			// 	alert('show button clicked');
-			// }
 		});
-
-		// document.querySelector('#hideClue').addEventListener('click', function(){
-		// 	clueP.style.display = 'none';
-		// 	showClue.style.display = 'block';
-		// 	hideClue.style.display = 'none';
-		// });
-		// document.querySelector('#hideClue').addEventListener('click', function(){
-		// 	alert('showing clue');
-		// 	console.log('clicked on show clue');
-		// 	clueP.style.display = 'block';
-		// 	hideClue.style.display = 'block';
-		// 	// showClue.style.display = 'none';
-		// });
-
-		// var requestClue = document.createElement('button');
-		// return clueDiv;
-
 	}
 
 
@@ -722,7 +724,10 @@ window.onload = function(){
 	                    console.log(name);
 	                })
 	                .then(function() { //I think this is right? waiting until it was successfully added to db before I then move onto the next screen
-	                    alert("Copy and share the following game code with your friends: " + code);
+	                    // alert("Copy and share the following game code with your friends: " + code);
+	                    document.querySelector('#modalText').innerHTML = "Copy and share the following game code with your friends: " + code;
+	    				modal.style.display = "block";
+	                    //keep as an alert or modal
 	                    setChromeStorage(code, name, site, hangout, clue);
 	             
 	                }).catch(function(error) {
@@ -748,8 +753,10 @@ window.onload = function(){
 	                	db.collection('games').doc(joinCode).collection("players").get().then(snap => {
 						   var size = snap.size;
 						   if (size >= maxPlayers){
-						   	alert("I'm sorry, virtual hide-and-go-seek only allows a maximum of " + maxPlayers + " players per game.");
-						  
+						   	document.querySelector('#modalText').innerHTML = "I'm sorry, virtual hide-and-go-seek only allows a maximum of " + maxPlayers + " players per game.";
+	    					modal.style.display = "block";
+						   	// alert("I'm sorry, virtual hide-and-go-seek only allows a maximum of " + maxPlayers + " players per game.");
+						  	//keep as an alert or modal
 	        				// resetGameInputs();
 						   	makeWelcomeScreen();
 						   }
