@@ -11,6 +11,7 @@ var keyUpEvent = false;
 var clueCountKeyEvent = false;
 var editClueEvent = false;
 var updateClueEvent = false;
+var endEvent = false;
 var maxClueChars = 700;
 var thresholdClueChars = 100;
 var maxPlayers = 20;//change this later if you want
@@ -25,18 +26,27 @@ window.onload = function(){
 	var joinButton = document.querySelector('#join');
 
 
-
 	//Load and define modal
 
 	var modal = document.getElementById("myModal");
+	var confirmModal = document.getElementById('myConfirm');
+
 
 	// Get the <span> element that closes the modal
 	var span = document.getElementsByClassName("close")[0];
 
+	//get the cancel button for the confirm modal
+	var cancelDelete = document.getElementById('cancelDelete');
+
 	// When the user clicks on <span> (x), close the modal
 	span.onclick = function() {
 	  modal.style.display = "none";
-	}
+	};
+
+	// When the user clicks on cancel, close the confirm modal
+	cancelDelete.onclick = function() {
+	  confirmModal.style.display = "none";
+	};
 
 	// When the user clicks anywhere outside of the modal, close it
 	window.onclick = function(event) {
@@ -116,15 +126,15 @@ window.onload = function(){
 	// thanks to https://www.sitepoint.com/create-one-time-events-javascript/
 	// create a one-time event
 	//use this so that for join and create button, can't join multiple times (e.g. if there's some error and you remain on the page)
-	function onetime(node, type, callback) {
-	    // create event
-	    node.addEventListener(type, function(e) {
-	        // remove event
-	        e.target.removeEventListener(e.type, arguments.callee);
-	        // call handler
-	        return callback(e);
-	    });
-	}
+	// function onetime(node, type, callback) {
+	//     // create event
+	//     node.addEventListener(type, function(e) {
+	//         // remove event
+	//         e.target.removeEventListener(e.type, arguments.callee);
+	//         // call handler
+	//         return callback(e);
+	//     });
+	// }
 
 	//takes a string argument that should be either "create" or "join "
 	function makeNewGameScreen(createOrJoin) {
@@ -211,22 +221,32 @@ window.onload = function(){
 	note that the players subcollection will still exist--can just periodically clean out the database manually
 	 */
 	function endGame() {
-	    var confirmResults = confirm("Are you sure? This will end the game for ALL players!!");
-	    //CHANGE TO A MODAL!!!
-	    if (confirmResults == true) {
-	        //first delete all players
-	         db.collection("games").doc(gameCode)
-	        	.collection("players").get().then(function(results){
-	        		results.forEach(function(doc){
-	        			doc.ref.delete();
-	        		});
-	        	}).catch(function(error){console.log(error)});
-	        //then delete the game
-	        db.collection("games").doc(gameCode).delete()
-	        .catch(function(error){console.log(error)});
-	        chrome.storage.sync.clear();
-	        makeWelcomeScreen();
-	    }
+
+
+		document.querySelector('#confirmText').innerHTML = "Are you sure? This will end the game for ALL players!!";
+	    confirmModal.style.display = "block";
+		//if clicks button to quit, code here
+	    // if (confirmResults == true) {
+	    if (endEvent == false){
+		    document.querySelector('#endForAll').addEventListener('click', function(){
+		        //first delete all players
+		         db.collection("games").doc(gameCode)
+		        	.collection("players").get().then(function(results){
+		        		results.forEach(function(doc){
+		        			doc.ref.delete();
+		        		});
+		        	}).catch(function(error){console.log(error)});
+		        //then delete the game
+		        db.collection("games").doc(gameCode).delete()
+		        .catch(function(error){console.log(error)});
+		        chrome.storage.sync.clear();
+		        //then close the modal
+		        confirmModal.style.display = "none";
+		        makeWelcomeScreen();
+		        
+	    	});
+	    	endEvent = true;
+		}
 	}
 
 	/*delete this player from the game*/
@@ -349,13 +369,6 @@ window.onload = function(){
 		//thinking that maybe buttons.clue could have specific style, not sure
 		clueP.setAttribute('class', 'clue');
 		// var showClue = document.createElement('button');
-		// showClue.innerHTML = "show clues";
-		// showClue.setAttribute('class', 'show_clue');
-		// var hideClue = document.createElement('button');
-		// hideClue.id = "clue_" + name;
-		// hideClue.innerHTML = "hide clues";
-		// hideClue.setAttribute('class', 'hide_clue');
-		
 		
 		// clueDiv.appendChild(showClue);
 		clueDiv.appendChild(clueP);
@@ -397,7 +410,7 @@ window.onload = function(){
 	        	var statsDiv = document.querySelector('#gameStats');
 	    		statsDiv.innerHTML = "";
 	        	var toFind = [];
-	            results.forEach(function(doc) {
+	            results.forEach(function(doc){
 	            	var hasHave = 'has';
 	            	var wasWere = 'was';
 	                
@@ -414,8 +427,6 @@ window.onload = function(){
 	                	player = 'you';
 	                	hasHave = 'have';
 	                	wasWere = 'were';
-
-
 	                }
 	                player_span.innerHTML = player;
 	                //THIS IS FOR THE TOOL TIP!!!
@@ -427,7 +438,7 @@ window.onload = function(){
 	                var foundBy_span = document.createElement('span');
 	                foundBy_span.setAttribute('class', 'foundBy');
 
-	                
+	             
 	                if (foundBy.length == 0) {
 	                    p.appendChild(player_span);
 	                    var notFound = document.createTextNode(" " + hasHave + " not been found by anyone yet!");
@@ -785,28 +796,26 @@ window.onload = function(){
 	                                    clue:clue,
 	                                    foundBy: []
 	                                })
+	                            })
 	                                .then(function() {
 	                                	db.collection("games").doc(joinCode).get().then(function(doc){
 	                                		hangoutLink = doc.data()['hangout'];
 	                                		console.log("HANGOUT", hangoutLink);
 	                                	}).then(function(){
 	                                	setChromeStorage(joinCode, name, site, hangoutLink, clue);
-	                                })
+	                                });
 	                            })
 	                                .catch(function(error) {
 	                                    console.log(error);
 	                                    document.querySelector('#newGameError').innerHTML = "There was an error joining this game. If this was unexpected, please contact the developer for support.";
 	                                });
-	                        }); //ends the then function after we checked if the doc exists
+	                        // }); //ends the then function after we checked if the doc exists
 
 						   }//ends else clause for if not exceeding max players
-						});
-	                }
+						});//ends the code to check size of player collection
+	                }//ends else statement that applies to validated join game
 	            }); //ends safeJoinCode part
-
-	        } //ends join code (else statement)
-
-
+	       } //ends else if join code 
 	        //should move to the next screen and show the code
 	    } //ends game validaiton code
 	    else { //if not valid, stay on same screen
@@ -951,7 +960,4 @@ try{!function(t,e){"use strict";var n;e=e&&e.hasOwnProperty("default")?e.default
 	db.settings({
 	    timestampsInSnapshots: true
 	});
-
-
-
 } //ends window on load...

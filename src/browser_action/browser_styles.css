@@ -120,8 +120,9 @@ button{
 	background-color:var(--go-color);
 
 }
-#quitGame{
+#quitGame, #endForAll{
 	background-color:var(--danger-color);
+
 }
 
 #search_bar, #newClue{
@@ -138,6 +139,9 @@ button{
 
 }
 
+#cancelDelete{
+	background-color:var(--go-color);
+}
 #joinButton, #create{
 	background-color:var(--go-color);
 	width: 50%;
@@ -266,7 +270,7 @@ h2, h5, h4, #gameCode, #countChars{
 
 
 /* Adapted the modal css from W3Schools...The Modal (background) */
-.modal {
+.modal, .modal_confirm {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
