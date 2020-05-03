@@ -214,7 +214,16 @@ window.onload = function(){
 	    var confirmResults = confirm("Are you sure? This will end the game for ALL players!!");
 	    //CHANGE TO A MODAL!!!
 	    if (confirmResults == true) {
-	        db.collection("games").doc(gameCode).delete().catch(function(error){console.log(error)});
+	        //first delete all players
+	         db.collection("games").doc(gameCode)
+	        	.collection("players").get().then(function(results){
+	        		results.forEach(function(doc){
+	        			doc.ref.delete();
+	        		});
+	        	}).catch(function(error){console.log(error)});
+	        //then delete the game
+	        db.collection("games").doc(gameCode).delete()
+	        .catch(function(error){console.log(error)});
 	        chrome.storage.sync.clear();
 	        makeWelcomeScreen();
 	    }
