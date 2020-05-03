@@ -314,7 +314,15 @@ window.onload = function(){
 		            	clue: newClue
 		        	});
 		        	document.querySelector('#clueDialogue').style.display = "none";
-		        	alert('Your clue has been changed to ' + newClue + ".");
+		     //    	var clueSuccess = document.getElementById('clueSuccess');
+	  				// clueSuccess.style.display = "inline-block";
+	  				showClueSuccess();
+		        	// fadeoutClueSuccess();
+		        	
+
+		        	window.setTimeout(fadeoutClueSuccess, 2000); //display for 2 secs before fading back out
+		        	// clueSuccess.style.display = "inline-block";
+		        	// alert('Your clue has been changed to ' + newClue + ".");
 		        	//change the above to a fadeout text, "clue successfully updated"
 
 		    	}
@@ -332,6 +340,18 @@ window.onload = function(){
 	    searchForPlayers();
 	}
 
+	function fadeoutClueSuccess() {
+
+	  var clueSuccess = document.getElementById('clueSuccess');
+	  // clueSuccess.style.display = "inline-block";
+	  clueSuccess.style.opacity = '0';
+	}
+
+	function showClueSuccess(){
+		var clueSuccess = document.getElementById('clueSuccess');
+	  	// clueSuccess.style.display = "none";
+	  	clueSuccess.style.opacity = 1;
+	}
 	function isHangoutValid(hangoutLink){
 		if(hangoutLink.includes("hangouts.google.com") && isURL(hangoutLink)){
 			return true;
@@ -745,7 +765,7 @@ window.onload = function(){
 	                })
 	                .then(function() { //I think this is right? waiting until it was successfully added to db before I then move onto the next screen
 	                    // alert("Copy and share the following game code with your friends: " + code);
-	                    document.querySelector('#modalText').innerHTML = "Copy and share the following game code with your friends: " + code;
+	                    document.querySelector('#modalText').innerHTML = "Copy and share the following game code with your friends: " + '<span style="color:var(--danger-color)">' + code + '</span>';
 	    				modal.style.display = "block";
 	                    //keep as an alert or modal
 	                    setChromeStorage(code, name, site, hangout, clue);
