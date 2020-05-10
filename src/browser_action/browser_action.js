@@ -1,4 +1,5 @@
 var gameCode, yourName, yourSite, hangoutLink, yourClue;
+var currCode, currHangout, currName, currSite, currClue;
 //event listener booleans... false indicates does not have event listener attached currently
 var showStartEvent = false;
 var showJoinEvent = false;
@@ -16,7 +17,92 @@ var maxClueChars = 700;
 var thresholdClueChars = 100;
 var maxPlayers = 20; //change this later if you want
 //don't run until window loaded to accurately access dom
+
+
+
+
 window.onload = function() {
+
+
+    //thanks to trick from https://stackoverflow.com/questions/2315863/does-onbeforeunload-event-trigger-for-popup-html-in-a-google-chrome-extension
+    var background = chrome.extension.getBackgroundPage();
+    var codeDom = document.querySelector('#joinCode');
+    var hangoutDom = document.querySelector('#hangout');
+    var nameDom = document.querySelector('#name');
+    var siteDom = document.querySelector('#site');
+    var clueDom = document.querySelector('#clue');
+    var formInputsDict = {'currCode': codeDom, 'currHangout': hangoutDom, 'currName': nameDom, 'currSite': siteDom, 'currClue': clueDom};
+    //add selected Gif dom
+    // var formDoms = [codeDom];//, hangoutDom, nameDom, siteDom, clueDom];
+
+    updateFormMemory(); //always do this
+
+    function addBlur(domEl, keyName){ //every time leave focus event on form, update the value for that particular input (in storage)
+        domEl.addEventListener("blur", function(event){
+            var val = domEl.value;
+            chrome.storage.sync.set({
+                [keyName]: val
+            });
+        });
+    }
+
+    function updateFormMemory(){
+        var formInputsArray = Object.keys(formInputsDict);
+        //give event listeners to all the text inputs
+        formInputsArray.forEach(function(item){     
+            addBlur(formInputsDict[item], item);
+          
+        });
+        //get info from chrome storage memory and fill in the form with last inputs
+        chrome.storage.sync.get(formInputsArray, function(results){
+            background.console.log(results);
+
+            formInputsArray.forEach(function(item){
+                background.console.log(results[item]);
+                if(results[item] != undefined){ //if exists in chrome storage
+
+                    // background.console.log(item);
+                    formInputsDict[item].value = results[item]; //then set the input to the last value that had been stored 
+                }
+                else{
+                    background.console.log(item);
+                }
+            });
+   
+        });
+
+
+    }
+
+    // function serveCurrentInputs(){
+
+    // }
+
+    
+
+    
+    // codeDom.addEventListener("blur", function(event){
+    //     background.console.log('blur event happening');
+    //     background.console.log(codeDom.value);
+    //     var test = codeDom.value;
+    //     chrome.storage.sync.set({
+    //         'currCode': test
+    //     });
+       
+    // });
+
+
+
+    // try{
+    //     chrome.storage.sync.get(['currCode'], function(results){
+    //         background.console.log(results);
+    //     });
+    // }
+    // catch(error){
+    //     background.console.log(error);
+    // }
+
+
 
         var welcome = document.querySelector('#welcome');
 
@@ -120,6 +206,34 @@ window.onload = function() {
                 });
                 showJoinEvent = true;
             }
+        }
+
+        function currScreenState(){
+            background.console.log('runningCurrScreenState');
+        //     var currCode = document.querySelector('#joinCode').value;
+        //     background.console.log(currCode);
+        //     var currHangout = document.querySelector('#hangout').value;
+        //     background.console.log(currHangout);
+        //     try{
+        //         var currName = document.querySelector('#name').value;
+        //     var currSite = document.querySelector('#site').value;
+        //     var currClue = document.querySelector('#clue').value;
+        // }
+        // catch(error){
+        //     background.console.log(error);
+        // }
+            // chrome.storage.sync.set({
+            //     currCode: currCode,
+            //     currHangout: currHangout,
+            //     currName: currName,
+            //     currClue: currClue
+            // });
+            chrome.storage.sync.set({
+                currCode: 'test'
+            }, function (){
+                background.console.log('I set it...');
+            });
+            //add a check for current selected gif, but later
         }
 
 
