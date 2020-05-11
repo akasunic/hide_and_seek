@@ -16,6 +16,20 @@
 		<div id="newGameError" class="error"></div>
 		<h4 style="color:black" class ="startOnly"><span style="color:grey">(optional)</span> Go to <a href="https://hangouts.google.com/start" target= "_blank">Hangouts</a>, and then copy and paste the "link to share". It will be shared with other players during the game.</h4>
 		<input class="startOnly" type="text" id="hangout" placeholder="Optional Google Hangout link">
+		<div class="startOnly">
+			<label for="cars">Where do you want players to hide?</label>
+			<select id="domain" name="domain">
+			    <option value="wc">Any site (players need to figure out top-level domain only)</option>
+			    <option value="yt">Youtube videos</option>
+			    <option value="wk">Wikipedia pages</option>
+			    <option value="rd">Reddit subreddits</option>
+			    <option value="ig">Instagram accounts</option>
+			    <option value="am">Amazon products</option>
+			    <option value="nf">Netflix movies and shows</option>
+				
+			  </select>	
+		</div>
+		
 		<label class="joinOnly">Game code:</label>
 		<input class="joinOnly" id="joinCode" type="text">
 		<label>Your name</label>

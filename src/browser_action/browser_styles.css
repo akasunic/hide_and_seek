@@ -171,6 +171,11 @@ label{
 
 }
 
+select{
+	margin:0px 10px 10px 10px;
+
+}
+
 input{
 	margin:0px 10px 10px 10px;
 	/*display:block;*/
