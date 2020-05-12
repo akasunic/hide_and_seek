@@ -722,50 +722,81 @@ window.onload = function() {
         }
 
         function validateURL(theSite, theDomain, joinOrCreate){
+            //this was useful for testing regular expressions: https://regex101.com/
             // var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'nf', 'wc'];
-            console.log(theDomain);
-
-
-            if(theDomain == 'yt'){
-                //must be a youtube domain AND include watch?v=
-                //https://www.youtube.com/watch?v=mEdygnWTb2U&list=WL&index=2&t=0s if in part of a playlist, fyi
-                if (theSite.includes("youtube.com")){
-                    if (theSite.includes(/watch?v=\w+/)){
+            function validateHelper (topLevelSite, regExp, pageRef){
+                if(theSite.includes(topLevelSite)){
+                    if (regExp.test(theSite)){
                         return true;
                     }
-                    else {
+                    else{
                         document.querySelector('#site').setAttribute('class', 'invalid');
-                        return "You must include a link to a specific YouTube video. Please double check your link.";
+                        return "You must include a link to a specific " + pageRef + ". Please double check your link.";
                     }
                 }
                 else{
                     document.querySelector('#site').setAttribute('class', 'invalid');
-                    return "You must use a youtube.com link.";
+                    return "You must use a link that includes " + topLevelSite;
+
                 }
 
             }
+            if(theDomain == 'yt'){
+                return validateHelper("youtube.com", /watch\?v=\w+/, "Youtube video"); //for matching, stop before ampersand
+            }
+
             else if(theDomain == 'wk'){
-                console.log(test);
+                return validateHelper("wikipedia.org", /\/wiki\/\w+/, "Wikipedia page");//match: info after wiki
                 
             }
             else if(theDomain == 'rd'){
-                console.log(test);
+                return validateHelper("reddit.com", /\/r\/\w+/, "subreddit");//info after r, stop before next / (to exclude comments etc)
                 
             }
             else if(theDomain == 'ig'){
-                console.log(test);
+                //Using a negative lookahead
+                return validateHelper("instagram.com", /instagram.com\/(?!(p\/))/, "Instagram account. Make sure you are not referencing a post"); //info after .com to match up until end OR up until /
                 
             }
             else if(theDomain == 'am'){
-                console.log(test);
+
+                var regExMatches = [/\/dp\/\w+/, /\/gp\/product\/\w+/, /\/o\/ASIN\/\w+/, /\/gp\/aw\/d\/\w+/];
+
+                if (theSite.includes("amazon.com")){
+                    //check for any one of the regExMatches
+
+                    for (var r=0; r<regExMatches.length; r++){
+                        console.log(regExMatches[r].test(theSite));
+                        if (regExMatches[r].test(theSite)){
+                            return true;
+                        }
+                    }
+                    return "You must include a link to a specific Amazon product. Please double check your link.";
+                }
+                else{
+                    document.querySelector('#site').setAttribute('class', 'invalid');
+                    return "You must use a link that includes amazon.com";
+
+                }
+                // see for guidance: https://stackoverflow.com/questions/902001/how-to-get-product-information-from-amazon-just-based-on-the-url
+                // I excluded some link bases that didn't seem to work, might be outdated info 
+                // http://amazon./gp/product/*
+
+                // http://amazon./dp/*
+
+                // http://amazon./o/ASIN/*
+
+                // http://amazon./gp/aw/d/*
+                //All of these followed by product id, which seems to be just letters (checking as letters/numbers to be safe)
                 
             }
             else if(theDomain == 'nf'){
-                console.log(test);
-                
+                return validateHelper("netflix.com", /\/watch\/\w+/, "Netflix movie or show"); //info after .com to match up until end OR up until /
+                //sample: https://www.netflix.com/watch/81077783, often followed by ? and tracking etc. So go up until ?, or if no ?, then end of the link, to match the particular id
             }
             else if(theDomain == 'wc'){
-                console.log(test);
+                //already checking elsewhere that it's a valid url, so you're good. But could add again here if you want? At least for now, just returning true
+                return true;
                 
             }
             else{ //if none of these (likely a db error or something, such that no domain exists-- so give error about the game itself!)
