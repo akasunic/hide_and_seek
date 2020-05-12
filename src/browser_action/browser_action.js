@@ -721,8 +721,67 @@ window.onload = function() {
             }
         }
 
+        function validateURL(theSite, theDomain, joinOrCreate){
+            // var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'nf', 'wc'];
+            console.log(theDomain);
+
+
+            if(theDomain == 'yt'){
+                //must be a youtube domain AND include watch?v=
+                //https://www.youtube.com/watch?v=mEdygnWTb2U&list=WL&index=2&t=0s if in part of a playlist, fyi
+                if (theSite.includes("youtube.com")){
+                    if (theSite.includes(/watch?v=\w+/)){
+                        return true;
+                    }
+                    else {
+                        document.querySelector('#site').setAttribute('class', 'invalid');
+                        return "You must include a link to a specific YouTube video. Please double check your link.";
+                    }
+                }
+                else{
+                    document.querySelector('#site').setAttribute('class', 'invalid');
+                    return "You must use a youtube.com link.";
+                }
+
+            }
+            else if(theDomain == 'wk'){
+                console.log(test);
+                
+            }
+            else if(theDomain == 'rd'){
+                console.log(test);
+                
+            }
+            else if(theDomain == 'ig'){
+                console.log(test);
+                
+            }
+            else if(theDomain == 'am'){
+                console.log(test);
+                
+            }
+            else if(theDomain == 'nf'){
+                console.log(test);
+                
+            }
+            else if(theDomain == 'wc'){
+                console.log(test);
+                
+            }
+            else{ //if none of these (likely a db error or something, such that no domain exists-- so give error about the game itself!)
+                if (joinOrCreate=="join"){
+                    return "Hm, there seems to be an issue with your join code. Double check with your host.";
+                }
+                else if(joinOrCreate == "create"){
+                    return "Hm, there seems to be an issue creating your game. Double check that you chose a theme.";
+                }
+                
+            }
+        }
+
         /*front end validation for game creation*/
         function validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue, domain) {
+
             if (joinOrCreate == "create" && domains.includes(domain)==false){
                 document.querySelector('#domain').setAttribute('class', 'invalid');
                 return "You must choose a domain from the dropdown list.";
@@ -736,6 +795,11 @@ window.onload = function() {
             } else if (isURL(site) == false) { //site should be a real site
                 document.querySelector('#site').setAttribute('class', 'invalid');
                 return "You must enter a valid website as your hiding place.";
+
+            } else if (joinOrCreate == "create" && validateURL(site, domain, joinOrCreate) != true){
+                document.querySelector('#site').setAttribute('class', 'invalid');
+                return validateURL(site, domain, joinOrCreate);
+            
             } else if (validateClue(clue, '#clue') != true) { //should have a clue, and clue should not be too long
                 return validateClue(clue, '#clue');
             } else if (isGIF(gif) == false) { //gif should be a displayable gif, not sure how to test
@@ -781,20 +845,13 @@ window.onload = function() {
             if (joinOrCreate == "create"){
                 domain = document.querySelector('#domain').value;
             }
-            else if (joinOrCreate == "join"){
-                db.collection("games").doc(joinCode.toLowerCase()).get().then(function(doc){
-                    domain = doc.data()['domain'];
-                }).catch(function(err){
-                    console.log(err);
-                    domain = '';
-                });
-            }
             
             // console.log(joinCode);
             var gif = document.querySelector('#selected_gif');
             if (gif != undefined) {
                 gif = gif.src;
             }
+
             if (validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue, domain) == true) { //valid, so go ahead and create game
                 if (joinOrCreate == "create") {
                     code = generateUID(); //for new game
@@ -830,18 +887,19 @@ window.onload = function() {
 
                 //If valid, and join
                 else if (joinOrCreate == "join") {
+                    //Instead of using safeJoinCode, better to check for both game with code existing, and if so, getting the domain at once
 
-                    safeJoinCode(joinCode.toLowerCase()).then(function(value) {
-                        // console.log(value);
-                        if (value == false) { //extra check: can only join if already exists in db 
+                    db.collection("games").doc(joinCode.toLowerCase()).get().then(function(doc) {
+                        if (doc.exists) {
 
-                            document.querySelector('#newGameError').innerHTML = "This is not a valid join code.";
-                            document.querySelector('#joinCode').setAttribute('class', 'invalid');
-                            // onetime(document.querySelector("#joinButton"), "click", joinGame);
-                        } else {
-
-
-
+                            //make sure the domain is the okay now!
+                            domain = doc.data()['domain'];
+                            console.log(domain);
+                            if (validateURL(site, domain, joinOrCreate)!=true){
+                                document.querySelector('#site').setAttribute('class', 'invalid');
+                                document.querySelector('#newGameError').innerHTML = validateURL(site, domain, joinOrCreate);
+                            }
+                            else{// if the URL is valid according to the chosen domain, proceed
 
                             //make sure there aren't too many players in the game already, using max number of players. currently set to 20
                             //make sure it matches with firestore security rules
@@ -855,7 +913,9 @@ window.onload = function() {
                                     //keep as an alert or modal
                                     // resetGameInputs();
                                     makeWelcomeScreen();
-                                } else { //if not exceeding max players
+                                } 
+
+                                else { //if not exceeding max players
 
                                     
                                     db.collection("games").doc(joinCode.toLowerCase())
@@ -891,23 +951,22 @@ window.onload = function() {
                                             console.log(error);
                                             document.querySelector('#newGameError').innerHTML = "There was an error joining this game. If this was unexpected, please contact the developer for support.";
                                         });
-                                    // }); //ends the then function after we checked if the doc exists
 
                                 } //ends else clause for if not exceeding max players
                             }); //ends the code to check size of player collection
-                        } //ends else statement that applies to validated join game
-                    }); //ends safeJoinCode part
+                            }//should go after the max players db call-- ends else statement to signify valid URL and code
+                        } //ends if for calling the doc
+                         else {
+                            document.querySelector('#newGameError').innerHTML = "This is not a valid join code.";
+                            document.querySelector('#joinCode').setAttribute('class', 'invalid');
+                        }
+                    }); //ends check of document to see if it exists, and to get the domain
+                            
                 } //ends else if join code 
                 //should move to the next screen and show the code
             } //ends game validaiton code
             else { //if not valid, stay on same screen
                 document.querySelector('#newGameError').innerHTML = validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue, domain);
-                // if (joinOrCreate == "create") {
-                //     onetime(document.querySelector("#create"), "click", createGame);
-                // } else if (joinOrCreate == "join") {
-                //     onetime(document.querySelector("#joinButton"), "click", joinGame);
-
-                // }
             }
         }
 
@@ -965,7 +1024,7 @@ window.onload = function() {
 
                 top_gifs = response_objects["results"];
 
-                searchResults.innerHTML = '<h4 style="font-weight:bold">Click a GIF below to select.</h4>';
+                searchResults.innerHTML = '<h4 style="font-weight:bold; color:var(--neutral-color);">Click a GIF below to select.</h4>';
 
                 // searchResults 
                 // load the GIFs --
