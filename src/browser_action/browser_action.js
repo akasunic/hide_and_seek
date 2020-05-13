@@ -18,7 +18,7 @@ var thresholdClueChars = 100;
 var maxPlayers = 20; //change this later if you want
 
 //these are the site domains in which players are allowed to play
-var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'wc'];
+var domains = ['yt', 'wk', 'rd', 'ig', 'am'];
 
 //don't run until window loaded to accurately access dom
 
@@ -436,9 +436,7 @@ window.onload = function() {
                 if(currUrlId == targetUrlId){
                     return true;
                 }
-                else{
-                    return false;
-                }
+                return false;
             }
 
             if(domain == "yt"){
@@ -459,41 +457,26 @@ window.onload = function() {
                 return(helperCompare(/instagram.com\/(?!(p\/))/, /\/*/));
             }
 
-            // else if(theDomain == 'am'){
-
-            //     var regExMatches = [/\/dp\/\w+/, /\/gp\/product\/\w+/, /\/o\/ASIN\/\w+/, /\/gp\/aw\/d\/\w+/];
-
-            //     if (theSite.includes("amazon.com")){
-            //         //check for any one of the regExMatches
-
-            //         for (var r=0; r<regExMatches.length; r++){
-            //             console.log(regExMatches[r].test(theSite));
-            //             if (regExMatches[r].test(theSite)){
-            //                 return true;
-            //             }
-            //         }
-            //         return "You must include a link to a specific Amazon product. Please double check your link.";
-            //     }
-            //     else{
-            //         document.querySelector('#site').setAttribute('class', 'invalid');
-            //         return "You must use a link that includes amazon.com";
-
-            //     }
-
+            //WORKING ON THIS RIGHT NOW!!!!
             else if(domain == "am"){
-                console.log('ill return to this later...');
+                var regExMatches = [/\/dp\/\w+/, /\/gp\/product\/\w+/, /\/o\/ASIN\/\w+/, /\/gp\/aw\/d\/\w+/];
+                for (var r=0; r<regExMatches.length; r++){
+                    if (regExMatches[r].test(currURL)){
+                        currURL = currURL.split(regExMatches[r])[1];
+                    }
+                    if (regExMatches[r].test(targetURL)){
+                        targetURL = targetURL.split(regExMatches[r])[1];
+                    }
+                }
+                //either followed by /and stuff or nothing
+                if(currURL.split(/\/*/)[0].toLowerCase() == targetURL.split(/\/*/)[0].toLowerCase()){
+                    return true;
+                }
+                return false;
+                
             }
 
-
-            //HARDER! How to figure out top level domain from any site? look online for existing regexp for this
-            // else if(theDomain == 'wc'){
-                
-                
-            // }
-
-
-
-            else{ //I don't know what other situations... but probably should just return false
+            else{ //I don't know what other situations... but for now will just return false...
                 return false;
             }
         }
@@ -812,7 +795,7 @@ window.onload = function() {
         function validateURL(theSite, theDomain, joinOrCreateOrPlay){
 
             //this was useful for testing regular expressions: https://regex101.com/
-            // var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'wc'];
+            // var domains = ['yt', 'wk', 'rd', 'ig', 'am'];
             console.log(theSite, theDomain, joinOrCreateOrPlay);
             // if(theDomain instanceof HTMLElement ){ //FIND where thIS IS HAPPENING!!!
             //     theDomain = theDomain.value;
@@ -906,11 +889,6 @@ window.onload = function() {
 
                 // http://amazon./gp/aw/d/*
                 //All of these followed by product id, which seems to be just letters (checking as letters/numbers to be safe)
-                
-            }
-            else if(theDomain == 'wc'){
-                //already checking elsewhere that it's a valid url, so you're good. But could add again here if you want? At least for now, just returning true
-                return true;
                 
             }
             else{ //if none of these (likely a db error or something, such that no domain exists-- so give error about the game itself!)
