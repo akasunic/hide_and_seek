@@ -18,7 +18,7 @@ var thresholdClueChars = 100;
 var maxPlayers = 20; //change this later if you want
 
 //these are the site domains in which players are allowed to play
-var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'nf', 'wc'];
+var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'wc'];
 
 //don't run until window loaded to accurately access dom
 
@@ -108,7 +108,7 @@ window.onload = function() {
         }
 
         //see if there's a game in progress being stored through chrome
-        chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangout', 'clue'], function(items) {
+        chrome.storage.sync.get(['gameCode', 'name', 'site', 'hangout', 'clue', 'domain'], function(items) {
             gameCode = items.gameCode;
             //if there is one, then make sure it actually exists in the db
             if (gameCode != undefined) {
@@ -116,12 +116,13 @@ window.onload = function() {
                     .then(function(results) {
                         if (results.exists) {
 
-                            //if it does exist, find out your name and hiding place site so we can use it in the dom
+                            //if it does exist, find out your name and hiding place site etc so we can use it in the dom
                             //then make the play screen
                             yourName = items.name;
                             yourSite = items.site;
                             yourClue = items.clue;
                             hangoutLink = items.hangout;
+                            gameDomain = items.domain;
                             makePlayScreen();
 
                         } else {
@@ -311,6 +312,8 @@ window.onload = function() {
 
         /*shows the correct screen for a game in progress*/
         function makePlayScreen() {
+            //GET DOMAIN HERE???????????
+            // console.log(domain);
             resetGameInputs();
             countClue();
             welcome.style.display = "none";
@@ -410,20 +413,89 @@ window.onload = function() {
 
 
         /*used in searchForPlayers to determine whether the url of current tab and players' hiding places match*/
-        function compareURLS(url1, url2, domain) {
-            // console.log(url1, "<current tab", url2);
-            var prefix = /^https?:\/\/(www.)?/;
-            var ending = /\/$/;
-            url1 = url1.replace(prefix, '');
-            url2 = url2.replace(prefix, '');
-            url1 = url1.replace(ending, '');
-            url2 = url2.replace(ending, '');
-            // console.log(url1, url2);
-            if (url1 == url2) {
-                // console.log('urls match');
-                return true;
+        function compareURLS(currURL, targetURL, domain) {
+            //note that compareURLS only occurs if already follows the rules for the domain, thanks to use of validateURLS
+            //so only have to focus on matching the id part
+
+            function helperCompare(regExp, regExpOrStringEnd){ 
+                function helperSplit(url){
+                    console.log(url);
+                    console.log(url.split(regExp));
+                    if(url.split(regExp).length>2 || url.split(regExp)[1] == ""){ //
+                        url = "";
+                    }
+                    else {
+                        url = url.split(regExp)[1].split(regExpOrStringEnd)[0].toLowerCase(); //regExpOrStringEnd should be structured such that this is always performable
+                    }  
+                    return url;
+                }
+
+
+                var currUrlId = helperSplit(currURL);
+                var targetUrlId = helperSplit(targetURL);
+                if(currUrlId == targetUrlId){
+                    return true;
+                }
+                else{
+                    return false;
+                }
             }
-            return false;
+
+            if(domain == "yt"){
+                return helperCompare(/watch\?v=\w+/, "&");
+
+            }
+
+            else if(domain == "wk"){
+                return helperCompare(/\/wiki\/\w+/, /\/*/);
+
+            }
+
+            else if(domain == "rd"){
+                return helperCompare(/\/r\/\w+/, /\/*/);
+            }
+
+            else if(domain == "ig"){
+                return(helperCompare(/instagram.com\/(?!(p\/))/, /\/*/));
+            }
+
+            // else if(theDomain == 'am'){
+
+            //     var regExMatches = [/\/dp\/\w+/, /\/gp\/product\/\w+/, /\/o\/ASIN\/\w+/, /\/gp\/aw\/d\/\w+/];
+
+            //     if (theSite.includes("amazon.com")){
+            //         //check for any one of the regExMatches
+
+            //         for (var r=0; r<regExMatches.length; r++){
+            //             console.log(regExMatches[r].test(theSite));
+            //             if (regExMatches[r].test(theSite)){
+            //                 return true;
+            //             }
+            //         }
+            //         return "You must include a link to a specific Amazon product. Please double check your link.";
+            //     }
+            //     else{
+            //         document.querySelector('#site').setAttribute('class', 'invalid');
+            //         return "You must use a link that includes amazon.com";
+
+            //     }
+
+            else if(domain == "am"){
+                console.log('ill return to this later...');
+            }
+
+
+            //HARDER! How to figure out top level domain from any site? look online for existing regexp for this
+            // else if(theDomain == 'wc'){
+                
+                
+            // }
+
+
+
+            else{ //I don't know what other situations... but probably should just return false
+                return false;
+            }
         }
 
         function makeClueDiv(name, clue) {
@@ -584,7 +656,7 @@ window.onload = function() {
         */
         function searchForPlayers() {
             // var playerFound;
-            var thisUrl;
+            // var thisUrl;
             //get current tab url, and see if there are any players in db that are hiding there.
             chrome.tabs.query({
                 active: true,
@@ -592,9 +664,20 @@ window.onload = function() {
             }, function(tabs) {
                 // since only one tab should be active and in the current window at once
                 // the return variable should only have one entry
-                thisUrl = tabs[0].url.toLowerCase();
-                // console.log(thisUrl);
-            });
+                var thisUrl = tabs[0].url.toLowerCase();
+                console.log(thisUrl);
+            
+
+            var valSearchSite = validateURL(thisUrl, gameDomain, 'play');
+                //first make sure they're on an appropriate site by using the validate domain function
+           if(valSearchSite !=true){
+                // if (valSearchSite != undefined){
+                    document.querySelector('#playError').innerHTML = '<h2>' + validateURL(thisUrl, gameDomain, 'play') + '</h2>';
+                // }
+                updateStats();
+           }
+           else{
+            console.log(valSearchSite);
             db.collection("games").doc(gameCode.toLowerCase())
                 .collection("players").get()
                 .then(function(results) {
@@ -606,7 +689,7 @@ window.onload = function() {
                         var site = data['hidingPlace'].toLowerCase();
                         var gif = data['gif'];
                         var playerName = data['name'];
-                        if (yourName != playerName && compareURLS(thisUrl, site, domain)) { //don't add if it's yourName
+                        if (yourName != playerName && compareURLS(thisUrl, site, gameDomain)) { //don't add if it's yourName
                             //show the GIF associated with that player
                             links.push(gif);
 
@@ -631,6 +714,11 @@ window.onload = function() {
                 }).catch(function(error) {
                     console.log(error);
                 });
+            }
+
+            });
+
+            
         }
 
         /* Function to generate game codes
@@ -721,9 +809,15 @@ window.onload = function() {
             }
         }
 
-        function validateURL(theSite, theDomain, joinOrCreate){
+        function validateURL(theSite, theDomain, joinOrCreateOrPlay){
+
             //this was useful for testing regular expressions: https://regex101.com/
-            // var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'nf', 'wc'];
+            // var domains = ['yt', 'wk', 'rd', 'ig', 'am', 'wc'];
+            console.log(theSite, theDomain, joinOrCreateOrPlay);
+            // if(theDomain instanceof HTMLElement ){ //FIND where thIS IS HAPPENING!!!
+            //     theDomain = theDomain.value;
+            //     console.log(theDomain);
+            // }
             function validateHelper (topLevelSite, regExp, pageRef){
                 if(theSite.includes(topLevelSite)){
                     if (regExp.test(theSite)){
@@ -731,16 +825,28 @@ window.onload = function() {
                     }
                     else{
                         document.querySelector('#site').setAttribute('class', 'invalid');
-                        return "You must include a link to a specific " + pageRef + ". Please double check your link.";
+                        if(joinOrCreateOrPlay != "play"){
+                            return "You must include a link to a specific " + pageRef + ". Please double check your link.";
+                        }
+                        else{
+                            return "Search for other players on a specific " + pageRef + ".";
+                        }
                     }
                 }
                 else{
                     document.querySelector('#site').setAttribute('class', 'invalid');
-                    return "You must use a link that includes " + topLevelSite;
+                    if(joinOrCreateOrPlay != "play"){
+                       return "You must use a link that includes " + topLevelSite; 
+                    }
+                    else{
+                        return "Hey, why are you searching here? Go to " + topLevelSite + "!";
+                    }
+                    
 
                 }
 
             }
+
             if(theDomain == 'yt'){
                 return validateHelper("youtube.com", /watch\?v=\w+/, "Youtube video"); //for matching, stop before ampersand
             }
@@ -771,11 +877,23 @@ window.onload = function() {
                             return true;
                         }
                     }
-                    return "You must include a link to a specific Amazon product. Please double check your link.";
+                    if(joinOrCreateOrPlay != "play"){
+                        return "You must include a link to a specific Amazon product. Please double check your link.";
+
+                    }
+                    else{
+                        return "Search for another player on a specific Amazon product page.";
+                    }
+                    
                 }
                 else{
                     document.querySelector('#site').setAttribute('class', 'invalid');
-                    return "You must use a link that includes amazon.com";
+                    if(joinOrCreateOrPlay != "play"){
+                        return "You must use a link that includes amazon.com";
+                    }
+                    else{
+                        return "You should be searching on sites that include amazon.com";
+                    }
 
                 }
                 // see for guidance: https://stackoverflow.com/questions/902001/how-to-get-product-information-from-amazon-just-based-on-the-url
@@ -790,20 +908,16 @@ window.onload = function() {
                 //All of these followed by product id, which seems to be just letters (checking as letters/numbers to be safe)
                 
             }
-            else if(theDomain == 'nf'){
-                return validateHelper("netflix.com", /\/watch\/\w+/, "Netflix movie or show"); //info after .com to match up until end OR up until /
-                //sample: https://www.netflix.com/watch/81077783, often followed by ? and tracking etc. So go up until ?, or if no ?, then end of the link, to match the particular id
-            }
             else if(theDomain == 'wc'){
                 //already checking elsewhere that it's a valid url, so you're good. But could add again here if you want? At least for now, just returning true
                 return true;
                 
             }
             else{ //if none of these (likely a db error or something, such that no domain exists-- so give error about the game itself!)
-                if (joinOrCreate=="join"){
+                if (joinOrCreateOrPlay=="join"){
                     return "Hm, there seems to be an issue with your join code. Double check with your host.";
                 }
-                else if(joinOrCreate == "create"){
+                else if(joinOrCreateOrPlay == "create"){
                     return "Hm, there seems to be an issue creating your game. Double check that you chose a theme.";
                 }
                 
@@ -875,6 +989,7 @@ window.onload = function() {
             hangout = document.querySelector('#hangout').value.trim();
             if (joinOrCreate == "create"){
                 domain = document.querySelector('#domain').value;
+                console.log(domain);
             }
             
             // console.log(joinCode);
@@ -948,7 +1063,7 @@ window.onload = function() {
 
                                 else { //if not exceeding max players
 
-                                    
+                                    console.log('we good');
                                     db.collection("games").doc(joinCode.toLowerCase())
                                         .collection("players").doc(name).get().then(function(doc) {
                                             if (doc.exists) {
@@ -974,6 +1089,7 @@ window.onload = function() {
                                                 hangoutLink= undefined;
                                                 // console.log("HANGOUT", hangoutLink);
                                             }
+                                            domain = doc.data()['domain'];
                                             }).then(function() {
                                                 setChromeStorage(joinCode, name, site, hangoutLink, clue, domain);
                                             });
@@ -1002,6 +1118,7 @@ window.onload = function() {
         }
 
         function setChromeStorage(code, name, site, hangoutLink, clue, domain) {
+            console.log(domain);
             //doesnt make sense, but im putting hangout link here...
             hangoutLink = hangoutLink;
             gameCode = code.toLowerCase();
