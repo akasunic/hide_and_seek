@@ -9,6 +9,7 @@ var searchEvent = false;
 var leaveEvent = false;
 var endEvent = false;
 var keyUpEvent = false;
+var clueUpdateKeyEvent = false;
 var clueCountKeyEvent = false;
 var editClueEvent = false;
 var updateClueEvent = false;
@@ -248,6 +249,7 @@ window.onload = function() {
             var inputs = document.querySelectorAll('input');
             [].forEach.call(inputs, function(el) {
                 el.value = '';
+                el.removeAttribute('class', 'invalid');//extra check
             });
             document.querySelector('#search_results').innerHTML = '';
             var statsDiv = document.querySelector('#gameStats');
@@ -305,7 +307,7 @@ window.onload = function() {
                 });
 
             chrome.storage.sync.clear();
-            // resetGameInputs();
+            resetGameInputs();
             makeWelcomeScreen();
         }
 
@@ -341,6 +343,17 @@ window.onload = function() {
 
                 });
             }
+
+            if (clueUpdateKeyEvent == false){
+                document.querySelector('#newClue').addEventListener("keyup", function(event){
+                    if(event.keyCode ===13){
+                        document.querySelector('#updateClue').click();
+                    }
+                });
+                clueUpdateKeyEvent = true;
+
+            }
+
 
             if (updateClueEvent == false) {
                 document.querySelector("#updateClue").addEventListener('click', function() {
@@ -440,17 +453,17 @@ window.onload = function() {
             }
 
             if(domain == "yt"){
-                return helperCompare(/watch\?v=\w+/, "&");
+                return helperCompare(/watch\?v=/, "&");
 
             }
 
             else if(domain == "wk"){
-                return helperCompare(/\/wiki\/\w+/, /\/*/);
+                return helperCompare(/\/wiki\//, /\/*/);
 
             }
 
             else if(domain == "rd"){
-                return helperCompare(/\/r\/\w+/, /\/*/);
+                return helperCompare(/\/r\//, /\/*/);
             }
 
             else if(domain == "ig"){
@@ -459,7 +472,7 @@ window.onload = function() {
 
             //WORKING ON THIS RIGHT NOW!!!!
             else if(domain == "am"){
-                var regExMatches = [/\/dp\/\w+/, /\/gp\/product\/\w+/, /\/o\/ASIN\/\w+/, /\/gp\/aw\/d\/\w+/];
+                var regExMatches = [/\/dp\//, /\/gp\/product\//, /\/o\/ASIN\//, /\/gp\/aw\/d\//];
                 for (var r=0; r<regExMatches.length; r++){
                     if (regExMatches[r].test(currURL)){
                         currURL = currURL.split(regExMatches[r])[1];
@@ -469,6 +482,8 @@ window.onload = function() {
                     }
                 }
                 //either followed by /and stuff or nothing
+                console.log(currURL);
+                console.log(currURL.split(/\/*/));
                 if(currURL.split(/\/*/)[0].toLowerCase() == targetURL.split(/\/*/)[0].toLowerCase()){
                     return true;
                 }
@@ -529,6 +544,7 @@ window.onload = function() {
             db.collection("games").doc(gameCode.toLowerCase())
                 .collection("players").get()
                 .then(function(results) {
+                    console.log(results.size);
                     var statsDiv = document.querySelector('#gameStats');
                     statsDiv.innerHTML = "";
                     var toFind = [];
@@ -616,7 +632,7 @@ window.onload = function() {
                     });
                     // console.log('toFind:', toFind.length);
                     if (toFind.length == 0) {
-                        if (results.length > 1) {
+                        if (results.size > 1) {
                             statsDiv.innerHTML += "<h3>You found all the players!</h3>";
                         } else {
                             statsDiv.innerHTML += "<h3>There are no other players to find yet.</h3>";
@@ -672,9 +688,15 @@ window.onload = function() {
                         var site = data['hidingPlace'].toLowerCase();
                         var gif = data['gif'];
                         var playerName = data['name'];
-                        if (yourName != playerName && compareURLS(thisUrl, site, gameDomain)) { //don't add if it's yourName
+                        console.log(thisUrl);
+                        console.log(site);
+                        console.log(gameDomain);
+                        console.log(thisUrl);
+                        if (compareURLS(thisUrl, site, gameDomain)) { //don't add if it's yourName
                             //show the GIF associated with that player
-                            links.push(gif);
+                            links.push(gif); //show gif whether it's yours or someone else's
+
+                            if(yourName != playerName){//but don't update data if it's you
 
                             //update message to show you found the player
                             //update db to show that player found by another player (if not already marked)
@@ -685,6 +707,7 @@ window.onload = function() {
                                 }, {
                                     merge: true
                                 });
+                            }
                         }
                     });
                     //tell backgruond.js that we need to show gifs. 
