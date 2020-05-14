@@ -17,7 +17,7 @@
 		<h4 style="color:black;" class ="startOnly"><span style="color:grey;">(optional)</span> Go to <a href="https://hangouts.google.com/start" target= "_blank">Hangouts</a>, and then copy and paste the "link to share". It will be shared with other players during the game.</h4>
 		<input class="startOnly" type="text" id="hangout" placeholder="Optional Google Hangout link">
 		<div class="startOnly">
-			<label for="cars">Where do you want players to hide?</label>
+			<label for="domain">Where do you want players to hide?</label>
 			<select id="domain" name="domain">
 			    <option value="yt">Youtube videos</option>
 			    <option value="wk">Wikipedia pages</option>
@@ -27,22 +27,24 @@
 				
 			  </select>	
 		</div>
+
 		
-		<label class="joinOnly">Game code:</label>
-		<input class="joinOnly" id="joinCode" type="text">
-		<label>Your name</label>
-		<input type="text"  id="name">
+		<label class="submitCode">Game code:</label>
+		<input class="submitCode" id="joinCode" type="text">
+		<button class = "submitCode" id="submitCode">enter code</button>
+		<label class="both">Your name</label>
+		<input class="both" type="text"  id="name">
 		
-		<label>Your website "hiding place" (double check the address!):</label>
-		<input type ="text" id="site">
-		<label id="clueLabel">A clue to help others find you:<span id = "countChars"></span></label>
-		<input type ="text" id="clue">
-		<label>Search for a GIF your friends will see when they find you.</label>
-		<div id="search_bar">
-			<input id="gif_search" type="text">
-			<button id="search">Search</button>
+		<label id = "site_label" class="both">Your website "hiding place" (double check the address!):</label>
+		<input class="both" type ="text" id="site">
+		<label class="both" id="clueLabel">A clue to help others find you:<span id = "countChars"></span></label>
+		<input class="both" type ="text" id="clue">
+		<label class="both" >Search for a GIF your friends will see when they find you.</label>
+		<div class="both" id="search_bar">
+			<input class="both" id="gif_search" type="text">
+			<button class="both" id="search">search</button>
 		</div>
-		<div id="search_results">
+		<div class="both" id="search_results">
 		
 		</div>
 		
