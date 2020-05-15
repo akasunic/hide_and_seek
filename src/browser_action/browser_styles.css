@@ -23,6 +23,32 @@
 	border-radius:4px;
 }
 
+#extra{
+	width:200px;
+	margin-left:-150px;
+	top:-20px;
+	display:inline-block;
+	position:absolute;
+}
+
+#back{
+	margin-left: 10px;
+	width:25px;
+	display:inline-block;
+}
+
+#title{
+	display:inline-block;
+	text-align:center;
+}
+#back:hover{
+	cursor: pointer;
+	opacity: 0.2;
+
+}
+
+
+
 #editClue, a{
 	cursor: pointer;
 	color:var(--neutral-color);
@@ -110,10 +136,17 @@ button{
 	float:center;
 
 
-	/*justify-content:center;*/
-	/*display: flex;*/
-  	/*align-self: center;*/
 }
+
+
+.submitCode{
+	width:100px;
+	float:center;
+}
+/*
+#submitCode{
+	float:right;
+}*/
 
 #start{
 	background-color:var(--go-color);

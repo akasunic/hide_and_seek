@@ -5,19 +5,26 @@
 </head>
 <body>
 
+
+
 <div id="welcome">
 	<h2>Let's play virtual hide-and-go-seek!</h2>
 	<button id="start">start new game</button>
 	<button id="join">enter invite code</button>
 </div>
 
+
+
 <div id="startOrJoin">
 	<!-- <form> -->
+		<img id="back">
+		<h2 id="title">oh wow</h2>
+		<img id="extra" src=''>
 		<div id="newGameError" class="error"></div>
 		<h4 style="color:black;" class ="startOnly"><span style="color:grey;">(optional)</span> Go to <a href="https://hangouts.google.com/start" target= "_blank">Hangouts</a>, and then copy and paste the "link to share". It will be shared with other players during the game.</h4>
 		<input class="startOnly" type="text" id="hangout" placeholder="Optional Google Hangout link">
 		<div class="startOnly">
-			<label for="domain">Where do you want players to hide?</label>
+			<label for="domain">Where should everyone hide?</label>
 			<select id="domain" name="domain">
 			    <option value="yt">Youtube videos</option>
 			    <option value="wk">Wikipedia pages</option>
