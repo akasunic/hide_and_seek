@@ -244,16 +244,20 @@ window.onload = function() {
                     joinEvent = true;
                 }
 
-                //add variable!! also add for keyup!
                 if (submitCodeEvent == false){
                     document.querySelector('#submitCode').addEventListener('click', function(){
 
                         //first check that it's valid! if so, get domain and display, and then show the rest of the form
                         //COME BACK HERE!!
+                        //take away previous invalidation, if applicable
+                        document.querySelector('#joinCode').classList.remove('invalid');
+                        document.querySelector('#newGameError').innerHTML = "";
+                        
+                        var updatedCode = document.querySelector('#joinCode').value;
+                        joinCode = updatedCode;
                         console.log(joinCode);
-                        joinCode = document.querySelector('#joinCode').value;
 
-                         db.collection("games").doc(joinCode.toLowerCase()).get().then(function(doc) {
+                         db.collection("games").doc(updatedCode.toLowerCase()).get().then(function(doc) {
                             if (doc.exists) {
                                 console.log('exists');
 
@@ -291,7 +295,7 @@ window.onload = function() {
                             else {
                                 
                             document.querySelector('#newGameError').innerHTML = "This is not a valid join code.";
-                            document.querySelector('#joinCode').setAttribute('class', 'invalid');
+                            document.querySelector('#joinCode').classList.add('invalid');
                         
 
                             }
@@ -332,7 +336,7 @@ window.onload = function() {
             var inputs = document.querySelectorAll('input');
             [].forEach.call(inputs, function(el) {
                 el.value = '';
-                el.removeAttribute('class', 'invalid');//extra check
+                el.classList.remove("invalid");
             });
             document.querySelector('#search_results').innerHTML = '';
             var statsDiv = document.querySelector('#gameStats');
@@ -583,13 +587,13 @@ window.onload = function() {
             var statsDiv = document.querySelector('#gameStats');
             var clueDiv = document.createElement('div');
             // clueDiv.setAttribute("class", "clue_div");
-            clueDiv.setAttribute("class", "clue_div");
+            clueDiv.classList.add("clue_div");
             clueDiv.id = "clue_" + name;
             var clueP = document.createElement('p');
-            clueP.setAttribute("class", "tooltiptext");
+            clueP.classList.add("tooltiptext");
             clueP.innerHTML = clue;
             //thinking that maybe buttons.clue could have specific style, not sure
-            clueP.setAttribute('class', 'clue');
+            clueP.classList.add('clue');
             // var showClue = document.createElement('button');
 
             // clueDiv.appendChild(showClue);
@@ -640,9 +644,9 @@ window.onload = function() {
                         var foundBy = doc.data()['foundBy'];
                         var clue = doc.data()['clue'];
                         var player_span = document.createElement('span');
-                        player_span.setAttribute('class', 'player');
+                        player_span.classList.add('player');
                         if (player == yourName) {
-                            player_span.setAttribute('class', 'found_player');
+                            player_span.classList.add('found_player');
                             player_span.id = 'you';
                             // player_span.setAttribute('class', 'you');
                             player = 'you';
@@ -653,11 +657,11 @@ window.onload = function() {
                         //THIS IS FOR THE TOOL TIP!!!
                         var clue = document.createElement('span');
                         clue.innerHTML = doc.data()['clue'];
-                        clue.setAttribute('class', 'tooltiptext');
+                        clue.classList.add('tooltiptext');
                         player_span.appendChild(clue);
                         var p = document.createElement('p');
                         var foundBy_span = document.createElement('span');
-                        foundBy_span.setAttribute('class', 'foundBy');
+                        foundBy_span.classList.add('foundBy');
 
 
                         if (foundBy.length == 0) {
@@ -671,7 +675,7 @@ window.onload = function() {
                             if (foundBy.length == 1) {
                                 if (foundBy[0] == yourName) {
                                     foundBy_span.innerHTML = "you";
-                                    player_span.setAttribute('class', 'found_player');
+                                    player_span.classList.add('found_player');
 
                                 } else {
                                     foundBy_span.innerHTML = foundBy[0];
@@ -682,7 +686,7 @@ window.onload = function() {
                                 for (var f = 0; f < foundBy.length - 1; f++) {
                                     if (foundBy[f] == yourName) {
                                         foundBy[f] = "you";
-                                        player_span.setAttribute('class', 'found_player');
+                                        player_span.classList.add('found_player');
                                     }
 
                                     if (f != foundBy.length - 2) {
@@ -693,7 +697,7 @@ window.onload = function() {
                                 }
                                 if (foundBy[foundBy.length - 1] == yourName) {
                                     foundBy[foundBy.length - 1] = "you";
-                                    player_span.setAttribute('class', 'found_player');
+                                    player_span.classList.add('found_player');
                                 }
                                 foundBy_span.innerHTML += foundBy[foundBy.length - 1];
                                 p.appendChild(foundBy_span);
@@ -889,7 +893,7 @@ window.onload = function() {
         ///includes hashtag so can use on update page as well
         function validateClue(clue, hashTag) {
             if (clue == undefined || clue == "" || typeof clue != "string") {
-                document.querySelector(hashTag).setAttribute('class', 'invalid');
+                document.querySelector(hashTag).classList.add('invalid');
                 return "You must provide at least one clue.";
             } else if (clue.length > maxClueChars) {
                 return "Please provide a clue of " + maxClueChars.toString() + " characters or less. Your clue is " + clue.length.toString() + " characters.";
@@ -913,7 +917,7 @@ window.onload = function() {
                         return true;
                     }
                     else{
-                        document.querySelector('#site').setAttribute('class', 'invalid');
+                        document.querySelector('#site').classList.add('invalid');
                         if(joinOrCreateOrPlay != "play"){
                             return "You must include a link to a specific " + pageRef + ". Please double check your link.";
                         }
@@ -923,7 +927,7 @@ window.onload = function() {
                     }
                 }
                 else{
-                    document.querySelector('#site').setAttribute('class', 'invalid');
+                    document.querySelector('#site').classList.add('invalid');
                     if(joinOrCreateOrPlay != "play"){
                        return "You must use a link that includes " + topLevelSite; 
                     }
@@ -976,7 +980,7 @@ window.onload = function() {
                     
                 }
                 else{
-                    document.querySelector('#site').setAttribute('class', 'invalid');
+                    document.querySelector('#site').classList.add('invalid');
                     if(joinOrCreateOrPlay != "play"){
                         return "You must use a link that includes amazon.com";
                     }
@@ -1012,21 +1016,21 @@ window.onload = function() {
         function validateGameCreation(joinOrCreate, joinCode, name, site, gif, clue, domain) {
 
             if (joinOrCreate == "create" && domains.includes(domain)==false){
-                document.querySelector('#domain').setAttribute('class', 'invalid');
+                document.querySelector('#domain').classList.add('invalid');
                 return "You must choose a domain from the dropdown list.";
             }
             if (joinCode == '' && joinOrCreate == 'join') {
-                document.querySelector('#joinCode').setAttribute('class', 'invalid');
+                document.querySelector('#joinCode').classList.add('invalid');
                 return "You must enter a join code.";
             } else if (name == '' || typeof name != 'string') { //name should be a non-empty string. Maybe also check if name already in game but let's do that leter
-                document.querySelector('#name').setAttribute('class', 'invalid');
+                document.querySelector('#name').classList.add('invalid');
                 return "You must enter a name.";
             } else if (isURL(site) == false) { //site should be a real site
-                document.querySelector('#site').setAttribute('class', 'invalid');
+                document.querySelector('#site').classList.add('invalid');
                 return "You must enter a valid website as your hiding place.";
 
             } else if (joinOrCreate == "create" && validateURL(site, domain, joinOrCreate) != true){
-                document.querySelector('#site').setAttribute('class', 'invalid');
+                document.querySelector('#site').classList.add('invalid');
                 return validateURL(site, domain, joinOrCreate);
             
             } else if (validateClue(clue, '#clue') != true) { //should have a clue, and clue should not be too long
@@ -1121,7 +1125,8 @@ window.onload = function() {
 
                    //COME BACK HERE!!
                             if (validateURL(site, gameDomain, joinOrCreate)!=true){
-                                document.querySelector('#site').setAttribute('class', 'invalid');
+                                document.querySelector('#site').classList.add('invalid');
+                                
                                 document.querySelector('#newGameError').innerHTML = validateURL(site, gameDomain, joinOrCreate);
                             }
                             else{// if the URL is valid according to the chosen domain, proceed
@@ -1245,13 +1250,14 @@ window.onload = function() {
                     for (var i = 0; i < top_gifs.length; i++) {
                         var img = document.createElement('img');
                         img.src = top_gifs[i]["media"][0]["tinygif"]["url"];
-                        img.setAttribute('class', 'unselected');
+                        img.classList.add('unselected');
+                        
                         searchResults.appendChild(img);
                         img.addEventListener('click', function() {
                             // console.log('registering image click');
                             // console.log(img.src);
                             searchResults.querySelector('h4').innerHTML = "You've selected this GIF:";
-                            this.removeAttribute('class', 'unselected');
+                            this.classList.remove('unselected');
                             this.id = "selected_gif";
                             Array.from(document.getElementsByClassName('unselected')).forEach(function(image) {
                                 image.style.display = 'none';
