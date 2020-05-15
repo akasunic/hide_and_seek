@@ -66,10 +66,8 @@ window.onload = function() {
         });
         //get info from chrome storage memory and fill in the form with last inputs
         chrome.storage.sync.get(formInputsArray, function(results){
-            background.console.log(results);
 
             formInputsArray.forEach(function(item){
-                background.console.log(results[item]);
                 if(results[item] != undefined){ //if exists in chrome storage
                     formInputsDict[item].value = results[item]; //then set the input to the last value that had been stored 
                 }
@@ -192,7 +190,6 @@ window.onload = function() {
             gameInProgress.style.display = "none";
             if (showStartEvent == false) {
                 startButton.addEventListener('click', function() {
-                    // console.log('create clicked');
                     chrome.storage.sync.set({
                         currState: "create"
 
@@ -297,12 +294,10 @@ window.onload = function() {
                         
                         var updatedCode = document.querySelector('#joinCode').value;
                         joinCode = updatedCode;
-                        console.log(joinCode);
 
                          db.collection("games").doc(updatedCode.toLowerCase()).get().then(function(doc) {
                             if (doc.exists) {
                                 decoImg.src = "";
-                                console.log('exists');
                                 chrome.storage.sync.set({
                                     currState: "join"
 
@@ -342,7 +337,6 @@ window.onload = function() {
                                 }
                                 catch(err){
                                     hangoutLink= undefined;
-                                    // console.log("HANGOUT", hangoutLink);
                                 }
 
                             }
@@ -455,14 +449,11 @@ window.onload = function() {
 
         /*shows the correct screen for a game in progress*/
         function makePlayScreen() {
-            //GET DOMAIN HERE???????????
-            // console.log(domain);
             resetGameInputs();
             countClue();
             welcome.style.display = "none";
             document.querySelector('#startOrJoin').style.display = "none";
             gameInProgress.style.display = "block";
-            // console.log(hangoutLink);
 
             // CHECK HANGOUT LINK HERE!!! IF NOT VALID< DON'T SHOW!!!
             if (hangoutLink != undefined && isHangoutValid(hangoutLink)) {
@@ -573,8 +564,6 @@ window.onload = function() {
 
             function helperCompare(regExp, regExpOrStringEnd){ 
                 function helperSplit(url){
-                    console.log(url);
-                    console.log(url.split(regExp));
                     if(url.split(regExp).length>2 || url.split(regExp)[1] == ""){ //
                         url = "";
                     }
@@ -611,9 +600,7 @@ window.onload = function() {
                 return(helperCompare(/instagram.com\/(?!(p\/))/, /\//));
             }
 
-            //WORKING ON THIS RIGHT NOW!!!!
-            https://www.amazon.com/Laura-Gets-Cat-Dana-Brooke/dp/B07DPBJFP3/ref=sr_1_2?dchild=1&keywords=laura+gets+a+cat&qid=1589569515&sr=8-2
-            https://www.amazon.com/gp/product/B07DP9V4JN?autoplay=1&ref=dvm_us_api_cs_hud_na_GWRD-singleCW&pf_rd_r=VBV917P4RG17AGC29NAH&pf_rd_p=2fd611e9-b219-4553-8711-457798f8c88e
+            //GAH attempted to add for video. But appears that product IDs for videos are not stable
             else if(domain == "am"){
                 var regExMatches = [/\/dp\//, /\/gp\/product\//, /\/o\/ASIN\//, /\/gp\/aw\/d\//, /\/gp\/video\/detail\//];
                 for (var r=0; r<regExMatches.length; r++){
@@ -625,18 +612,11 @@ window.onload = function() {
                     }
                 }
                 //either followed by /and stuff or nothing
-                console.log(currURL);
-                console.log(targetURL);
-                console.log('test'.split(/\//));
-              
-                console.log(currURL.split(/\/*/));
                 currURL = currURL.split(/\//)[0].split(/\?/)[0];
                 targetURL = targetURL.split(/\//)[0].split(/\?/)[0];
                 // if(currURL.split(/\//)[0].toLowerCase() == targetURL.split(/\//)[0].toLowerCase()){
 
                 if(currURL.toLowerCase() == targetURL.toLowerCase()){
-                    console.log(currURL);
-                    console.log('have an amazon match');
                     return true;
                 }
                 return false;
@@ -691,12 +671,10 @@ window.onload = function() {
         Note that I chose to only have this function run when pressing browser icon (not updated continuously through an interval ftn)
         */
         function updateStats() {
-            // console.log('running updateStats');
 
             db.collection("games").doc(gameCode.toLowerCase())
                 .collection("players").get()
                 .then(function(results) {
-                    console.log(results.size);
                     var statsDiv = document.querySelector('#gameStats');
                     statsDiv.innerHTML = "";
                     var toFind = [];
@@ -782,7 +760,6 @@ window.onload = function() {
                         }
 
                     });
-                    // console.log('toFind:', toFind.length);
                     if (toFind.length == 0) {
                         if (results.size > 1) {
                             statsDiv.innerHTML += "<h3>You found all the players!</h3>";
@@ -816,7 +793,6 @@ window.onload = function() {
                 // since only one tab should be active and in the current window at once
                 // the return variable should only have one entry
                 var thisUrl = tabs[0].url.toLowerCase();
-                console.log(thisUrl);
             
 
             var valSearchSite = validateURL(thisUrl, gameDomain, 'play');
@@ -828,22 +804,15 @@ window.onload = function() {
                 updateStats();
            }
            else{
-            console.log(valSearchSite);
             db.collection("games").doc(gameCode.toLowerCase())
                 .collection("players").get()
                 .then(function(results) {
                     var links = [];
                     results.forEach(function(doc) {
-                        // console.log(yourName);
-                        // console.log(doc.data());
                         var data = doc.data();
                         var site = data['hidingPlace'].toLowerCase();
                         var gif = data['gif'];
                         var playerName = data['name'];
-                        console.log(thisUrl);
-                        console.log(site);
-                        console.log(gameDomain);
-                        console.log(thisUrl);
                         if (compareURLS(thisUrl, site, gameDomain)) { //don't add if it's yourName
                             //show the GIF associated with that player
                             links.push(gif); //show gif whether it's yours or someone else's
@@ -916,14 +885,12 @@ window.onload = function() {
             // var return_statement;
             return db.collection("games").doc(someCode.toLowerCase()).get().then(function(doc) {
                 if (doc.exists) {
-                    // console.log('doc exists!!');
                     return true;
                 } else {
                     return false;
                 }
             }).catch(function(error) {
                 console.log(error);
-                // console.log("doc must not exist...");
                 return false;
             });
         }
@@ -971,11 +938,6 @@ window.onload = function() {
 
             //this was useful for testing regular expressions: https://regex101.com/
             // var domains = ['yt', 'wk', 'rd', 'ig', 'am'];
-            console.log(theSite, theDomain, joinOrCreateOrPlay);
-            // if(theDomain instanceof HTMLElement ){ //FIND where thIS IS HAPPENING!!!
-            //     theDomain = theDomain.value;
-            //     console.log(theDomain);
-            // }
             function validateHelper (topLevelSite, regExp, pageRef){
                 if(theSite.includes(topLevelSite)){
                     if (regExp.test(theSite)){
@@ -1030,7 +992,6 @@ window.onload = function() {
                     //check for any one of the regExMatches
 
                     for (var r=0; r<regExMatches.length; r++){
-                        console.log(regExMatches[r].test(theSite));
                         if (regExMatches[r].test(theSite)){
                             return true;
                         }
@@ -1142,10 +1103,8 @@ window.onload = function() {
             hangout = document.querySelector('#hangout').value.trim();
             if (joinOrCreate == "create"){
                 domain = document.querySelector('#domain').value;
-                console.log(domain);
             }
             
-            // console.log(joinCode);
             var gif = document.querySelector('#selected_gif');
             if (gif != undefined) {
                 gif = gif.src;
@@ -1170,7 +1129,6 @@ window.onload = function() {
                                     clue: clue,
                                     foundBy: []
                                 });
-                            // console.log(name);
                         })
                         .then(function() { //waiting until it was successfully added to db before I then move onto the next screen
                             // alert("Copy and share the following game code with your friends: " + code);
@@ -1212,7 +1170,6 @@ window.onload = function() {
 
                                 else { //if not exceeding max players
 
-                                    console.log('we good');
                                     db.collection("games").doc(joinCode.toLowerCase())
                                         .collection("players").doc(name).get().then(function(doc) {
                                             if (doc.exists) {
@@ -1240,9 +1197,6 @@ window.onload = function() {
                                 } //ends else clause for if not exceeding max players
                             }); //ends the code to check size of player collection
                             }//should go after the max players db call-- ends else statement to signify valid URL and code
-                        // } //ends if for calling the doc
-                         
-                    // }); //ends check of document to see if it exists, and to get the domain
                             
                 } //ends else if join code 
                 //should move to the next screen and show the code
@@ -1253,7 +1207,6 @@ window.onload = function() {
         }
 
         function setChromeStorage(code, name, site, hangoutLink, clue, domain) {
-            console.log(domain);
             //doesnt make sense, but im putting hangout link here...
             hangoutLink = hangoutLink;
             gameCode = code.toLowerCase();
@@ -1319,8 +1272,6 @@ window.onload = function() {
                         
                         searchResults.appendChild(img);
                         img.addEventListener('click', function() {
-                            // console.log('registering image click');
-                            // console.log(img.src);
                             searchResults.querySelector('h4').innerHTML = "You've selected this GIF:";
                             this.classList.remove('unselected');
                             this.id = "selected_gif";
