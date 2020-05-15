@@ -599,21 +599,23 @@ window.onload = function() {
             }
 
             else if(domain == "wk"){
-                return helperCompare(/\/wiki\//, /\/*/);
+                return helperCompare(/\/wiki\//, /\//);
 
             }
 
             else if(domain == "rd"){
-                return helperCompare(/\/r\//, /\/*/);
+                return helperCompare(/\/r\//, /\//);
             }
 
             else if(domain == "ig"){
-                return(helperCompare(/instagram.com\/(?!(p\/))/, /\/*/));
+                return(helperCompare(/instagram.com\/(?!(p\/))/, /\//));
             }
 
             //WORKING ON THIS RIGHT NOW!!!!
+            https://www.amazon.com/Laura-Gets-Cat-Dana-Brooke/dp/B07DPBJFP3/ref=sr_1_2?dchild=1&keywords=laura+gets+a+cat&qid=1589569515&sr=8-2
+            https://www.amazon.com/gp/product/B07DP9V4JN?autoplay=1&ref=dvm_us_api_cs_hud_na_GWRD-singleCW&pf_rd_r=VBV917P4RG17AGC29NAH&pf_rd_p=2fd611e9-b219-4553-8711-457798f8c88e
             else if(domain == "am"){
-                var regExMatches = [/\/dp\//, /\/gp\/product\//, /\/o\/ASIN\//, /\/gp\/aw\/d\//];
+                var regExMatches = [/\/dp\//, /\/gp\/product\//, /\/o\/ASIN\//, /\/gp\/aw\/d\//, /\/gp\/video\/detail\//];
                 for (var r=0; r<regExMatches.length; r++){
                     if (regExMatches[r].test(currURL)){
                         currURL = currURL.split(regExMatches[r])[1];
@@ -624,8 +626,17 @@ window.onload = function() {
                 }
                 //either followed by /and stuff or nothing
                 console.log(currURL);
+                console.log(targetURL);
+                console.log('test'.split(/\//));
+              
                 console.log(currURL.split(/\/*/));
-                if(currURL.split(/\/*/)[0].toLowerCase() == targetURL.split(/\/*/)[0].toLowerCase()){
+                currURL = currURL.split(/\//)[0].split(/\?/)[0];
+                targetURL = targetURL.split(/\//)[0].split(/\?/)[0];
+                // if(currURL.split(/\//)[0].toLowerCase() == targetURL.split(/\//)[0].toLowerCase()){
+
+                if(currURL.toLowerCase() == targetURL.toLowerCase()){
+                    console.log(currURL);
+                    console.log('have an amazon match');
                     return true;
                 }
                 return false;
@@ -1013,7 +1024,7 @@ window.onload = function() {
             }
             else if(theDomain == 'am'){
 
-                var regExMatches = [/\/dp\/\w+/, /\/gp\/product\/\w+/, /\/o\/ASIN\/\w+/, /\/gp\/aw\/d\/\w+/];
+                var regExMatches = [/\/dp\/\w+/, /\/gp\/product\/\w+/, /\/o\/ASIN\/\w+/, /\/gp\/aw\/d\/\w+/, /\/gp\/video\/detail\//];
 
                 if (theSite.includes("amazon.com")){
                     //check for any one of the regExMatches
@@ -1039,7 +1050,7 @@ window.onload = function() {
                         return "You must use a link that includes amazon.com";
                     }
                     else{
-                        return "You should be searching on sites that include amazon.com";
+                        return "Hey, why are you searching here? Go to amazon.com";
                     }
 
                 }

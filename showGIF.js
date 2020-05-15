@@ -11,10 +11,11 @@ if(gif_html.length == 0){
 function showTheGif(gif_link){
 	var foundGIF = document.createElement("img");
 	foundGIF.src = gif_link;
-	foundGIF.setAttribute("class", "foundGIF");
+	foundGIF.classList.add("foundGIF");
 	foundGIF.style.position = "fixed";
 	foundGIF.style.top = "0px";
 	foundGIF.style.left = "0px";
+	foundGIF.style.zindex = 100000000;
 	document.querySelector('body').appendChild(foundGIF);
 	foundGIF.onload= function(){
 
